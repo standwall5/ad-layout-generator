@@ -1,0 +1,91 @@
+body {
+    background: #ccc;
+    font-family: "Source Sans 3", sans-serif;
+}
+.container {
+    max-width: 472px;
+    margin: 30px auto;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    padding: 1em;
+    border-bottom: solid 1px #ccc;
+}
+.logo {
+    max-width: 127px;
+}
+
+#posts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+}
+
+.post {
+    background: #fff;
+}
+
+.profile {
+    padding: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5em;
+}
+.profile-text h2,
+.profile-text h3 {
+    margin: 0;
+    font-size: 14px;
+}
+.profile-text h3 {
+    font-weight: normal;
+}
+.avatar {
+    width: 35px;
+    border-radius: 50%;
+}
+
+.post-content img {
+    max-width: 100%;
+}
+.post-content img:hover {
+    cursor: pointer;
+}
+
+footer {
+    padding: 1em;
+}
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+.actions button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+.actions button:focus,
+.actions button:hover {
+    opacity: 0.5;
+    cursor: pointer;
+}
+.actions button[data-clicked="true"] {
+    opacity: 0.5;
+}
+.actions button img {
+    width: 22px;
+}
+
+.counts {
+    margin: 1em 0;
+    font-weight: bold;
+}
+
+.post-text span {
+    font-weight: bold;
+}

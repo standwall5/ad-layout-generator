@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Ad Data Organizer - Paste & Organize</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    sans-serif;
+            }
+            .highlight {
+                animation: highlight 0.5s ease;
+            }
+            @keyframes highlight {
+                0% {
+                    background-color: #fef3c7;
+                }
+                100% {
+                    background-color: transparent;
+                }
+            }
+        </style>
+    </head>
+    <body class="bg-gray-50">
+        <div class="max-w-7xl mx-auto p-6">
+            <header class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                    📋 Ad Data Organizer
+                </h1>
+                <p class="text-gray-600">
+                    Paste ad data from Facebook Ad Library and organize it into
+                    structured JSON
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left: Input Area -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">Add Ad Manually</h2>
+
+                    <div class="mb-6">
+                        <div
+                            class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm text-blue-900 mb-4"
+                        >
+                            <p class="font-semibold mb-1">
+                                📝 Quick Instructions:
+                            </p>
+                            <p>
+                                Fill in the fields below for each ad, then click
+                                "Add to Collection"
+                            </p>
+                        </div>
+
+                        <form id="manual-ad-form" class="space-y-4">
+                            <div>
+                                <label
+                                    class="block text-sm font-semibold text-gray-700 mb-1"
+                                >
+                                    Poster Name
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="poster-name"
+                                    placeholder="e.g., ABC Lending Corp"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-semibold text-gray-700 mb-1"
+                                >
+                                    Poster Profile Picture
+                                </label>
+                                <input
+                                    type="url"
+                                    id="profile-picture"
+                                    placeholder="Paste URL or upload image below"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-2"
+                                />
+                                <input
+                                    type="file"
+                                    id="profile-picture-file"
+                                    accept="image/*"
+                                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                />
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Upload screenshot or paste image URL
+                                </p>
+                                <div id="profile-preview" class="mt-2 hidden">
+                                    <img
+                                        src=""
+                                        alt="Preview"
+                                        class="w-20 h-20 rounded-full object-cover border-2 border-gray-300"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-semibold text-gray-700 mb-1"
+                                >
+                                    Ad Caption/Text
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                    id="ad-caption"
+                                    placeholder="e.g., Get instant loans up to ₱50,000. Fast approval in 24 hours!"
+                                    rows="4"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                ></textarea>
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-semibold text-gray-700 mb-1"
+                                >
+                                    Ad Image
+                                </label>
+                                <input
+                                    type="url"
+                                    id="image-url"
+                                    placeholder="Paste URL or upload image below"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-2"
+                                />
+                                <input
+                                    type="file"
+                                    id="image-file"
+                                    accept="image/*"
+                                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                />
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Upload video screenshot or paste image URL
+                                </p>
+                                <div id="image-preview" class="mt-2 hidden">
+                                    <img
+                                        src=""
+                                        alt="Preview"
+                                        class="w-full max-w-xs rounded border-2 border-gray-300"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-sm font-semibold text-gray-700 mb-1"
+                                >
+                                    Website/Link Shown
+                                </label>
+                                <input
+                                    type="text"
+                                    id="embed-link"
+                                    placeholder="e.g., ABCLENDING.COM.PH or https://abclending.com.ph"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                                <p class="text-xs text-gray-500 mt-1">
+                                    The website/link displayed in the ad
+                                </p>
+                            </div>
+
+                            <div></div>
+                                <label
+                                    class="block text-sm font-semibold text-gray-700 mb-2"
+                                >
+                                    Ad Type
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="ad-type"
+                                            value="fake"
+                                            checked
+                                            class="w-4 h-4 text-red-600 focus:ring-red-500"
+                                        />
+                                        <span class="text-sm font-medium">🎭 Fake Ad</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="ad-type"
+                                            value="real"
+                                            class="w-4 h-4 text-green-600 focus:ring-green-500"
+                                        />
+                                        <span class="text-sm font-medium">✓ Real Ad</span>
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Mark if this is a fabricated ad or real from Ad Library
+                                </p>
+                            </div>
+
+                            <div class="pt-2">
+                                <button
+                                    type="submit"
+                                    class="w-full bg-green-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-green-700 transition"
+                                >
+                                    ➕ Add to Collection
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <button
+                                onclick="clearForm()"
+                                class="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition"
+                            >
+                                🗑️ Clear Form
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Output Area -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">
+                        Step 2: Organized Data
+                    </h2>
+
+                    <div class="mb-4 flex gap-2">
+                        <button
+                            onclick="copyToClipboard()"
+                            class="flex-1 bg-purple-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-purple-700 transition-colors"
+                        >
+                            📋 Copy JSON
+                        </button>
+                        <button
+                            onclick="downloadJSON()"
+                            class="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-indigo-700 transition-colors"
+                        >
+                            💾 Download JSON
+                        </button>
+                        <button
+                            onclick="loadIntoFeed()"
+                            class="flex-1 bg-orange-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-orange-700 transition-colors"
+                        >
+                            🚀 Load into Feed
+                        </button>
+                    </div>
+
+                    <div class="mb-4">
+                        <button
+                            onclick="downloadFakeAdsList()"
+                            class="w-full bg-red-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-red-700 transition-colors"
+                        >
+                            📝 Download Fake Ads Record (TXT)
+                        </button>
+                    </div>
+
+                    <div
+                        id="output-stats"
+                        class="mb-4 p-3 bg-gray-50 rounded-md text-sm"
+                    >
+                        <span class="text-gray-600">No ads processed yet</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="flex items-center gap-2 text-sm">
+                            <input
+                                type="checkbox"
+                                id="pretty-print"
+                                checked
+                                onchange="updateOutput()"
+                            />
+                            <span>Pretty Print JSON</span>
+                        </label>
+                    </div>
+
+                    <textarea
+                        id="json-output"
+                        readonly
+                        class="w-full h-96 p-4 border border-gray-300 rounded-md font-mono text-sm bg-gray-50"
+                        placeholder="Processed JSON will appear here..."
+                    ></textarea>
+
+                    <div class="mt-4">
+                        <h3 class="text-sm font-semibold mb-2">Preview:</h3>
+                        <div
+                            id="preview-container"
+                            class="border border-gray-300 rounded-md p-4 max-h-64 overflow-y-auto bg-gray-50"
+                        >
+                            <p class="text-gray-500 text-sm">
+                                No ads to preview
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions Panel -->
+            <div class="mt-6 bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">
+                    💡 Format Detection Guide
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div class="border border-gray-200 rounded-md p-3">
+                        <h3 class="font-semibold mb-2">
+                            Format 1: Simple List
+                        </h3>
+                        <pre class="bg-gray-50 p-2 rounded text-xs">
+Page Name
+Ad body text here
+---
+Another Page
+More ad text</pre
+                        >
+                    </div>
+                    <div class="border border-gray-200 rounded-md p-3">
+                        <h3 class="font-semibold mb-2">Format 2: Structured</h3>
+                        <pre class="bg-gray-50 p-2 rounded text-xs">
+Page: ABC Company
+Body: Ad text here
+Headline: Title
+Link: site.com
+---</pre
+                        >
+                    </div>
+                    <div class="border border-gray-200 rounded-md p-3">
+                        <h3 class="font-semibold mb-2">Format 3: Free-form</h3>
+                        <pre class="bg-gray-50 p-2 rounded text-xs">
+ABC Company posted:
+"Get loans fast!"
+Visit abc.com
+Apply now!</pre
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="../../script/meta-ad-api.js"></script>
+        <script src="../../script/facebook-ad-renderer.js"></script>
+        <script src="../../script/feed-simulator.js"></script>
+
+        <script>
+            let processedAds = [];
+
+            // Handle form submission
+            document
+                .getElementById("manual-ad-form")
+                .addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    addManualAd();
+                });
+
+            // Handle profile picture file upload
+            document
+                .getElementById("profile-picture-file")
+                .addEventListener("change", function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (event) {
+                            const dataUrl = event.target.result;
+                            document.getElementById("profile-picture").value =
+                                dataUrl;
+
+                            // Show preview
+                            const preview =
+                                document.getElementById("profile-preview");
+                            preview.querySelector("img").src = dataUrl;
+                            preview.classList.remove("hidden");
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+            // Handle ad image file upload
+            document
+                .getElementById("image-file")
+                .addEventListener("change", function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (event) {
+                            const dataUrl = event.target.result;
+                            document.getElementById("image-url").value =
+                                dataUrl;
+
+                            // Show preview
+                            const preview =
+                                document.getElementById("image-preview");
+                            preview.querySelector("img").src = dataUrl;
+                            preview.classList.remove("hidden");
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+            // Handle paste events for images
+            document.addEventListener("paste", function (e) {
+                const items = e.clipboardData.items;
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf("image") !== -1) {
+                        const blob = items[i].getAsFile();
+                        const reader = new FileReader();
+                        reader.onload = function (event) {
+                            const dataUrl = event.target.result;
+
+                            // Ask user which field to paste into
+                            const choice = confirm(
+                                "Paste image as:\nOK = Ad Image\nCancel = Profile Picture",
+                            );
+
+                            if (choice) {
+                                // Ad image
+                                document.getElementById("image-url").value =
+                                    dataUrl;
+                                const preview =
+                                    document.getElementById("image-preview");
+                                preview.querySelector("img").src = dataUrl;
+                                preview.classList.remove("hidden");
+                            } else {
+                                // Profile picture
+                                document.getElementById(
+                                    "profile-picture",
+                                ).value = dataUrl;
+                                const preview =
+                                    document.getElementById("profile-preview");
+                                preview.querySelector("img").src = dataUrl;
+                                preview.classList.remove("hidden");
+                            }
+                        };
+                        reader.readAsDataURL(blob);
+                        e.preventDefault();
+                        break;
+                    }
+                }
+            });
+
+            function addManualAd() {
+                const posterName = document
+                    .getElementById("poster-name")
+                    .value.trim();
+                const profilePicture = document
+                    .getElementById("profile-picture")
+                    .value.trim();
+                const caption = document
+                    .getElementById("ad-caption")
+                    .value.trim();
+                const imageUrl = document
+                    .getElementById("image-url")
+                    .value.trim();
+                const embedLink = document
+                    .getElementById("embed-link")
+                    .value.trim();
+                const adType = document.querySelector(
+                    'input[name="ad-type"]:checked'
+                ).value;
+
+                if (!posterName || !caption) {
+                    alert("Please fill in Poster Name and Caption!");
+                    return;
+                }
+
+                // Create ad object
+                const ad = {
+                    id: `ad_${Date.now()}_${processedAds.length}`,
+                    pageName: posterName,
+                    pageId: "",
+                    bodyText: caption,
+                    headerText: "",
+                    descriptionText: "",
+                    captionText: embedLink
+                        ? embedLink
+                              .replace(/^https?:\/\//i, "")
+                              .replace(/\/$/, "")
+                              .toUpperCase()
+                        : "",
+                    snapshotUrl: "",
+                    startTime: new Date().toISOString(),
+                    endTime: null,
+                    currency: "PHP",
+                    spend: null,
+                    timestamp: generateRandomTimestamp(),
+                    isSponsored: true,
+                    imageUrl: imageUrl,
+                    profilePictureUrl: profilePicture,
+                    isFakeAd: adType === "fake",
+                };
+
+                // Add to collection
+                processedAds.push(ad);
+
+                // Update UI
+                updateOutput();
+                updateStats();
+                updatePreview();
+
+                // Clear form
+                clearForm();
+
+                // Show success message
+                const successMsg = document.createElement("div");
+                successMsg.className =
+                    "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
+                successMsg.textContent = `✅ Ad added! Total: ${processedAds.length}`;
+                document.body.appendChild(successMsg);
+                setTimeout(() => successMsg.remove(), 2000);
+            }
+
+            function clearForm() {
+                document.getElementById("poster-name").value = "";
+                document.getElementById("profile-picture").value = "";
+                document.getElementById("profile-picture-file").value = "";
+                document.getElementById("ad-caption").value = "";
+                document.getElementById("image-url").value = "";
+                document.getElementById("image-file").value = "";
+                document.getElementById("embed-link").value = "";
+
+                // Hide previews
+                document
+                    .getElementById("profile-preview")
+                    .classList.add("hidden");
+                document
+                    .getElementById("image-preview")
+                    .classList.add("hidden");
+
+                document.getElementById("poster-name").focus();
+            }
+
+            function processData() {
+                const rawInput = document
+                    .getElementById("raw-input")
+                    .value.trim();
+
+                if (!rawInput) {
+                    alert("Please paste some ad data first!");
+                    return;
+                }
+
+                // Split by common separators
+                const adBlocks = rawInput
+                    .split(/\n---+\n|\n\n\n+/)
+                    .filter((block) => block.trim());
+
+                processedAds = adBlocks.map((block, index) => {
+                    const lines = block
+                        .split("\n")
+                        .map((l) => l.trim())
+                        .filter((l) => l);
+
+                    // Try to intelligently parse the data
+                    return parseAdBlock(lines, index);
+                });
+
+                updateOutput();
+                updateStats();
+                updatePreview();
+            }
+
+            function parseAdBlock(lines, index) {
+                const ad = {
+                    id: `ad_${Date.now()}_${index}`,
+                    pageName: "",
+                    pageId: "",
+                    bodyText: "",
+                    headerText: "",
+                    descriptionText: "",
+                    captionText: "",
+                    snapshotUrl: "",
+                    startTime: new Date().toISOString(),
+                    endTime: null,
+                    currency: "PHP",
+                    spend: null,
+                    timestamp: generateRandomTimestamp(),
+                    isSponsored: true,
+                };
+
+                if (lines.length === 0) return ad;
+
+                // Check if it's structured format (key: value)
+                const hasStructuredFormat = lines.some(
+                    (line) => line.includes(":") && !line.startsWith("http"),
+                );
+
+                if (hasStructuredFormat) {
+                    // Parse structured format
+                    lines.forEach((line) => {
+                        const colonIndex = line.indexOf(":");
+                        if (colonIndex > 0 && colonIndex < 20) {
+                            const key = line
+                                .substring(0, colonIndex)
+                                .toLowerCase()
+                                .trim();
+                            const value = line.substring(colonIndex + 1).trim();
+
+                            if (
+                                key.includes("page") ||
+                                key.includes("name") ||
+                                key.includes("sponsor")
+                            ) {
+                                ad.pageName = value;
+                            } else if (
+                                key.includes("body") ||
+                                key.includes("text") ||
+                                key.includes("description")
+                            ) {
+                                ad.bodyText = value;
+                            } else if (
+                                key.includes("headline") ||
+                                key.includes("title") ||
+                                key.includes("header")
+                            ) {
+                                ad.headerText = value;
+                            } else if (
+                                key.includes("link") ||
+                                key.includes("url") ||
+                                key.includes("website")
+                            ) {
+                                ad.captionText = value
+                                    .replace(/^https?:\/\//i, "")
+                                    .replace(/\/$/, "")
+                                    .toUpperCase();
+                            }
+                        }
+                    });
+                } else {
+                    // Parse free-form format
+                    // First line is usually the page name
+                    ad.pageName = lines[0];
+
+                    // Look for URLs
+                    const urlLine = lines.find((line) =>
+                        line.match(/\w+\.\w+/),
+                    );
+                    if (urlLine) {
+                        ad.captionText = urlLine
+                            .replace(/^https?:\/\//i, "")
+                            .replace(/\/$/, "")
+                            .toUpperCase();
+                    }
+
+                    // Everything else is body text (combine lines that look like ad copy)
+                    const bodyLines = lines.slice(1).filter((line) => {
+                        return (
+                            !line.match(/^\w+\.\w+$/) && // Not just a URL
+                            line.length > 10 && // Long enough to be ad text
+                            !line.match(/^(Posted|Sponsored|Ad|Learn More)/i)
+                        ); // Not metadata
+                    });
+
+                    if (bodyLines.length > 0) {
+                        ad.bodyText = bodyLines[0]; // Main text
+                        if (bodyLines.length > 1) {
+                            ad.headerText = bodyLines[1]; // Secondary text as header
+                        }
+                    }
+                }
+
+                // Clean up empty fields
+                if (!ad.pageName && ad.bodyText) {
+                    ad.pageName = "Unknown Advertiser";
+                }
+
+                return ad;
+            }
+
+            function autoDetectFormat() {
+                const rawInput = document
+                    .getElementById("raw-input")
+                    .value.trim();
+
+                if (!rawInput) {
+                    alert("Please paste some data first!");
+                    return;
+                }
+
+                // Analyze the format
+                const hasTripleDash = rawInput.includes("---");
+                const hasColons = rawInput
+                    .split("\n")
+                    .some(
+                        (line) =>
+                            line.includes(":") && !line.startsWith("http"),
+                    );
+                const lineCount = rawInput.split("\n").length;
+                const avgLineLength =
+                    rawInput
+                        .split("\n")
+                        .reduce((sum, line) => sum + line.length, 0) /
+                    lineCount;
+
+                let formatType = "unknown";
+                let suggestion = "";
+
+                if (hasTripleDash && hasColons) {
+                    formatType = "structured";
+                    suggestion =
+                        "Detected structured format with separators. Processing...";
+                } else if (hasTripleDash) {
+                    formatType = "simple-separated";
+                    suggestion =
+                        "Detected simple format with separators. Processing...";
+                } else if (lineCount > 20 && avgLineLength < 50) {
+                    formatType = "multi-line";
+                    suggestion =
+                        "Detected multi-line format. Will group by blank lines...";
+                } else {
+                    formatType = "free-form";
+                    suggestion =
+                        "Detected free-form format. Will do best-effort parsing...";
+                }
+
+                alert(
+                    `Format: ${formatType}\n\n${suggestion}\n\nClick OK to process.`,
+                );
+                processData();
+            }
+
+            function generateRandomTimestamp() {
+                const units = ["m", "h", "d"];
+                const unit = units[Math.floor(Math.random() * units.length)];
+                let value;
+
+                switch (unit) {
+                    case "m":
+                        value = Math.floor(Math.random() * 59) + 1;
+                        break;
+                    case "h":
+                        value = Math.floor(Math.random() * 23) + 1;
+                        break;
+                    case "d":
+                        value = Math.floor(Math.random() * 6) + 1;
+                        break;
+                }
+
+                return `${value}${unit}`;
+            }
+
+            function updateOutput() {
+                const prettyPrint =
+                    document.getElementById("pretty-print").checked;
+                const output = prettyPrint
+                    ? JSON.stringify(processedAds, null, 2)
+                    : JSON.stringify(processedAds);
+
+                document.getElementById("json-output").value = output;
+            }
+
+            function updateStats() {
+                const stats = document.getElementById("output-stats");
+                const adsWithText = processedAds.filter(
+                    (ad) => ad.bodyText,
+                ).length;
+                const adsWithHeadlines = processedAds.filter(
+                    (ad) => ad.headerText,
+                ).length;
+                const adsWithLinks = processedAds.filter(
+                    (ad) => ad.captionText,
+                ).length;
+
+                stats.innerHTML = `
+                <div class="flex gap-4">
+                    <span>📊 <strong>${processedAds.length}</strong> ads processed</span>
+                    <span>📝 <strong>${adsWithText}</strong> with body text</span>
+                    <span>🎯 <strong>${adsWithHeadlines}</strong> with headlines</span>
+                    <span>🔗 <strong>${adsWithLinks}</strong> with links</span>
+                </div>
+            `;
+            }
+
+            function updatePreview() {
+                const container = document.getElementById("preview-container");
+
+                if (processedAds.length === 0) {
+                    container.innerHTML =
+                        '<p class="text-gray-500 text-sm">No ads to preview</p>';
+                    return;
+                }
+
+                container.innerHTML = processedAds
+                    .map(
+                        (ad, i) => `
+                <div class="mb-4 p-3 border border-gray-200 rounded-md hover:border-blue-300 transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-semibold text-sm">${ad.pageName || "No page name"}</span>
+                            ${ad.isFakeAd ? '<span class="text-xs px-2 py-1 rounded bg-red-100 text-red-700">🎭 Fake</span>' : ''}
+                        </div>
+                        <span class="text-xs text-gray-500">${ad.timestamp}</span>
+                    </div>
+                    ${ad.bodyText ? `<p class="text-sm text-gray-700 mb-2">${ad.bodyText}</p>` : ""}
+                    ${ad.headerText ? `<p class="text-sm font-semibold text-gray-900 mb-1">${ad.headerText}</p>` : ""}
+                    ${ad.captionText ? `<p class="text-xs text-gray-500 uppercase">${ad.captionText}</p>` : ""}
+                </div>
+            `,
+                    )
+                    .join("");
+            }
+
+            function copyToClipboard() {
+                const output = document.getElementById("json-output").value;
+
+                if (!output) {
+                    alert("No data to copy!");
+                    return;
+                }
+
+                navigator.clipboard
+                    .writeText(output)
+                    .then(() => {
+                        alert("✅ JSON copied to clipboard!");
+                    })
+                    .catch((err) => {
+                        alert("Failed to copy: " + err);
+                    });
+            }
+
+            function downloadJSON() {
+                if (processedAds.length === 0) {
+                    alert("No data to download!");
+                    return;
+                }
+
+                const json = JSON.stringify(processedAds, null, 2);
+                const blob = new Blob([json], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `fb-ads-${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert("✅ JSON file downloaded!");
+            }
+
+            function downloadFakeAdsList() {
+                const fakeAds = processedAds.filter(ad => ad.isFakeAd);
+
+                if (fakeAds.length === 0) {
+                    return; // No fake ads to record
+                }
+
+                let txtContent = "FAKE ADS RECORD\n";
+                txtContent += "=" .repeat(50) + "\n";
+                txtContent += `Generated: ${new Date().toLocaleString()}\n`;
+                txtContent += `Total Fake Ads: ${fakeAds.length}\n`;
+                txtContent += "=" .repeat(50) + "\n\n";
+
+                fakeAds.forEach((ad, index) => {
+                    txtContent += `[${index + 1}] ${ad.pageName}\n`;
+                    txtContent += `-`.repeat(50) + "\n";
+                    txtContent += `Caption: ${ad.bodyText}\n`;
+                    if (ad.headerText) txtContent += `Headline: ${ad.headerText}\n`;
+                    if (ad.captionText) txtContent += `Link: ${ad.captionText}\n`;
+                    txtContent += `Posted: ${ad.timestamp} ago\n`;
+                    txtContent += `Type: FAKE AD 🎭\n`;
+                    txtContent += "\n";
+                });
+
+                const blob = new Blob([txtContent], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `fake-ads-record-${Date.now()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function loadIntoFeed() {
+                if (processedAds.length === 0) {
+                    alert("No ads to load!");
+                    return;
+                }
+
+                // Store in localStorage for the demo page to use
+                localStorage.setItem(
+                    "manual_ads_data",
+                    JSON.stringify(processedAds),
+                );
+
+                alert(
+                    `✅ ${processedAds.length} ads saved!\n\nNow go to the facebook-feed-demo.html page and they will be loaded automatically.`,
+                );
+            }
+
+            function clearAll() {
+                if (!confirm("Clear all ads in collection?")) return;
+
+                document.getElementById("json-output").value = "";
+                processedAds = [];
+                updateStats();
+                updatePreview();
+                document.getElementById("output-stats").innerHTML =
+                    '<span class="text-gray-600">No ads processed yet</span>';
+            }
+
+            function loadTemplate(type) {
+                let template = "";
+
+                if (type === "simple") {
+                    template = `ABC Lending Company
+Get your loan approved in 24 hours! Low interest rates, flexible payment terms.
+Quick Loan Philippines
+Apply online now
+ABCLENDING.COM.PH
+
+---
+
+XYZ Bank Philippines
+Need emergency funds? We provide instant cash loans up to ₱50,000.
+Emergency Loan
+Fast approval process
+XYZBANK.PH
+
+---
+
+FastCash Lending
+No collateral required! Apply for personal loans today.
+Personal Loan
+100% online application
+FASTCASH.COM.PH`;
+                } else if (type === "detailed") {
+                    template = `Page: ABC Lending Company
+Body: Get your loan approved in 24 hours! Low interest rates, flexible payment terms. Apply now!
+Headline: Quick Loan Philippines
+Description: Fast approval, competitive rates
+Link: abclending.com.ph
+
+---
+
+Page: XYZ Bank Philippines
+Body: Need emergency funds? We provide instant cash loans up to ₱50,000 with minimal requirements.
+Headline: Emergency Loan
+Description: Apply online, get approved today
+Link: xyzbank.ph
+
+---
+
+Page: FastCash Lending
+Body: No collateral required! Apply for personal loans from ₱5,000 to ₱50,000. Flexible terms available.
+Headline: Personal Loan
+Description: 100% online application, quick disbursement
+Link: fastcash.com.ph`;
+                }
+
+                document.getElementById("raw-input").value = template;
+                alert(
+                    'Template loaded! Click "Process & Organize Data" to convert it.',
+                );
+            }
+
+            // Auto-save raw input
+            document
+                .getElementById("raw-input")
+                .addEventListener("input", (e) => {
+                    localStorage.setItem("ad_organizer_draft", e.target.value);
+                });
+
+            // Load draft on page load
+            window.addEventListener("DOMContentLoaded", () => {
+                const draft = localStorage.getItem("ad_organizer_draft");
+                if (draft) {
+                    document.getElementById("raw-input").value = draft;
+                }
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta API Diagnostic Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold mb-6">Meta Ad Library API - Diagnostic Tool</h1>
+
+            <!-- Token Input -->
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Access Token:</label>
+                <input
+                    type="password"
+                    id="token-input"
+                    placeholder="Paste your Meta access token"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                />
+                <p class="text-xs text-gray-500 mt-1">
+                    Get from <a href="https://developers.facebook.com/tools/explorer/" target="_blank" class="text-blue-600 underline">Graph API Explorer</a>
+                </p>
+            </div>
+
+            <!-- Test Buttons -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <button onclick="testTokenValidity()" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                    1. Test Token Validity
+                </button>
+                <button onclick="testTokenPermissions()" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
+                    2. Check Token Permissions
+                </button>
+                <button onclick="testSimpleAdSearch()" class="bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700">
+                    3. Test Simple Ad Search
+                </button>
+                <button onclick="testWithDifferentFormats()" class="bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700">
+                    4. Test Different Formats
+                </button>
+            </div>
+
+            <!-- Results Area -->
+            <div id="results" class="bg-gray-50 border border-gray-300 rounded-md p-4 min-h-96 overflow-auto">
+                <p class="text-gray-500 text-sm">Test results will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getToken() {
+            const token = document.getElementById('token-input').value.trim();
+            if (!token) {
+                alert('Please enter an access token first!');
+                return null;
+            }
+            return token;
+        }
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const colors = {
+                info: 'text-blue-700',
+                success: 'text-green-700',
+                error: 'text-red-700',
+                warning: 'text-orange-700'
+            };
+
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = `mb-2 ${colors[type] || colors.info}`;
+            div.innerHTML = `<span class="text-gray-500 text-xs">[${timestamp}]</span> ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testTokenValidity() {
+            clearLog();
+            const token = getToken();
+            if (!token) return;
+
+            log('🔍 Testing token validity...', 'info');
+
+            try {
+                const response = await fetch(`https://graph.facebook.com/v24.0/me?access_token=${token}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    log('✅ Token is VALID!', 'success');
+                    log(`User ID: ${data.id}`, 'success');
+                    log(`Name: ${data.name || 'N/A'}`, 'success');
+                } else {
+                    log('❌ Token is INVALID!', 'error');
+                    log(`Error: ${data.error?.message || 'Unknown error'}`, 'error');
+                }
+
+                log('---', 'info');
+                log(`Full Response: ${JSON.stringify(data, null, 2)}`, 'info');
+            } catch (error) {
+                log(`💥 Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testTokenPermissions() {
+            clearLog();
+            const token = getToken();
+            if (!token) return;
+
+            log('🔍 Checking token permissions...', 'info');
+
+            try {
+                const response = await fetch(`https://graph.facebook.com/v24.0/me/permissions?access_token=${token}`);
+                const data = await response.json();
+
+                if (response.ok && data.data) {
+                    log('✅ Permissions retrieved!', 'success');
+                    log('---', 'info');
+
+                    const grantedPerms = data.data.filter(p => p.status === 'granted');
+                    const declinedPerms = data.data.filter(p => p.status === 'declined');
+
+                    log(`Granted Permissions (${grantedPerms.length}):`, 'success');
+                    grantedPerms.forEach(p => log(`  ✓ ${p.permission}`, 'success'));
+
+                    if (declinedPerms.length > 0) {
+                        log(`Declined Permissions (${declinedPerms.length}):`, 'warning');
+                        declinedPerms.forEach(p => log(`  ✗ ${p.permission}`, 'warning'));
+                    }
+
+                    // Check for ads_read specifically
+                    const hasAdsRead = grantedPerms.some(p => p.permission === 'ads_read');
+                    log('---', 'info');
+                    if (hasAdsRead) {
+                        log('✅ HAS ads_read permission - Good!', 'success');
+                    } else {
+                        log('⚠️ MISSING ads_read permission - This is required!', 'error');
+                        log('Go to Graph API Explorer and add "ads_read" permission', 'warning');
+                    }
+                } else {
+                    log('❌ Could not retrieve permissions', 'error');
+                    log(`Error: ${data.error?.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                log(`💥 Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSimpleAdSearch() {
+            clearLog();
+            const token = getToken();
+            if (!token) return;
+
+            log('🔍 Testing simple ad search...', 'info');
+            log('Search: "test" in US, limit 1', 'info');
+            log('---', 'info');
+
+            // Test different URL formats
+            const tests = [
+                {
+                    name: 'Format 1: Encoded array',
+                    url: `https://graph.facebook.com/v24.0/ads_archive?access_token=${token}&search_terms=test&ad_reached_countries=${encodeURIComponent("['US']")}&ad_type=ALL&limit=1&fields=id,page_name`
+                },
+                {
+                    name: 'Format 2: Direct array',
+                    url: `https://graph.facebook.com/v24.0/ads_archive?access_token=${token}&search_terms=test&ad_reached_countries=['US']&ad_type=ALL&limit=1&fields=id,page_name`
+                },
+                {
+                    name: 'Format 3: JSON array',
+                    url: `https://graph.facebook.com/v24.0/ads_archive?access_token=${token}&search_terms=test&ad_reached_countries=${encodeURIComponent('["US"]')}&ad_type=ALL&limit=1&fields=id,page_name`
+                },
+                {
+                    name: 'Format 4: Political ads only',
+                    url: `https://graph.facebook.com/v24.0/ads_archive?access_token=${token}&search_terms=election&ad_reached_countries=['US']&ad_type=POLITICAL_AND_ISSUE_ADS&limit=1&fields=id,page_name`
+                }
+            ];
+
+            for (const test of tests) {
+                log(`Testing: ${test.name}`, 'info');
+                try {
+                    const response = await fetch(test.url);
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        log(`  ✅ ${response.status} OK - Found ${data.data?.length || 0} ads`, 'success');
+                        if (data.data && data.data.length > 0) {
+                            log(`  First ad: ${data.data[0].page_name || data.data[0].id}`, 'success');
+                        }
+                    } else {
+                        log(`  ❌ ${response.status} ${response.statusText}`, 'error');
+                        log(`  Error: ${data.error?.message || 'Unknown'}`, 'error');
+                        log(`  Type: ${data.error?.type || 'N/A'}`, 'error');
+                        log(`  Code: ${data.error?.code || 'N/A'}`, 'error');
+                    }
+                } catch (error) {
+                    log(`  💥 Error: ${error.message}`, 'error');
+                }
+                log('---', 'info');
+            }
+        }
+
+        async function testWithDifferentFormats() {
+            clearLog();
+            const token = getToken();
+            if (!token) return;
+
+            log('🔍 Testing with Philippines (PH)...', 'info');
+            log('---', 'info');
+
+            const searchTerm = 'loan';
+            const country = 'PH';
+
+            const formats = [
+                { name: 'Single quotes', value: `['${country}']` },
+                { name: 'Double quotes', value: `["${country}"]` },
+                { name: 'No quotes', value: `[${country}]` },
+                { name: 'Plain value', value: country }
+            ];
+
+            for (const format of formats) {
+                log(`Testing format: ${format.name} = ${format.value}`, 'info');
+
+                const url = `https://graph.facebook.com/v24.0/ads_archive?access_token=${token}&search_terms=${searchTerm}&ad_reached_countries=${encodeURIComponent(format.value)}&ad_type=ALL&limit=1&fields=id,page_name`;
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    log(`  Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+
+                    if (response.ok) {
+                        log(`  ✅ SUCCESS! Found ${data.data?.length || 0} ads`, 'success');
+                        if (data.data && data.data.length > 0) {
+                            log(`  Example: ${JSON.stringify(data.data[0], null, 2)}`, 'success');
+                        }
+                    } else {
+                        log(`  Error: ${data.error?.message}`, 'error');
+                    }
+                } catch (error) {
+                    log(`  💥 ${error.message}`, 'error');
+                }
+                log('---', 'info');
+            }
+        }
+
+        // Auto-load saved token
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('meta_access_token');
+            if (saved) {
+                document.getElementById('token-input').value = saved;
+                log('📋 Loaded saved token from localStorage', 'success');
+            }
+
+            // Save token on change
+            document.getElementById('token-input').addEventListener('change', (e) => {
+                const token = e.target.value.trim();
+                if (token) {
+                    localStorage.setItem('meta_access_token', token);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Facebook - Feed with Ads</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    Oxygen, Ubuntu, Cantarell, sans-serif;
+                background-color: #f0f2f5;
+            }
+            .line-clamp-2 {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .ad-post {
+                animation: fadeInUp 0.3s ease;
+            }
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            /* Dark Mode */
+            body.dark-mode {
+                background-color: #18191a;
+            }
+            body.dark-mode header {
+                background-color: #242526;
+                border-bottom: 1px solid #3e4042;
+            }
+            body.dark-mode .bg-white {
+                background-color: #242526;
+                color: #e4e6eb !important;
+            }
+            body.dark-mode .ad-post {
+                color: #e4e6eb;
+            }
+            body.dark-mode .ad-post * {
+                color: #e4e6eb !important;
+            }
+            body.dark-mode .text-\[\#050505\] {
+                color: #e4e6eb !important;
+            }
+            body.dark-mode .text-\[\#65676b\] {
+                color: #b0b3b8 !important;
+            }
+            body.dark-mode .bg-gray-100 {
+                background-color: #3a3b3c;
+            }
+            body.dark-mode .text-gray-700 {
+                color: #b0b3b8 !important;
+            }
+            body.dark-mode .text-gray-500 {
+                color: #b0b3b8 !important;
+            }
+            body.dark-mode .text-gray-400 {
+                color: #8a8d91 !important;
+            }
+            body.dark-mode input[type="text"] {
+                background-color: #3a3b3c;
+                color: #e4e6eb;
+            }
+            body.dark-mode input[type="text"]::placeholder {
+                color: #b0b3b8;
+            }
+            body.dark-mode .hover\:bg-gray-200:hover {
+                background-color: #3a3b3c;
+            }
+            body.dark-mode button {
+                color: white;
+            }
+            /* Toggle Switch */
+            .toggle-switch {
+                position: relative;
+                display: inline-block;
+                width: 48px;
+                height: 24px;
+            }
+            .toggle-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+            .toggle-slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #ccc;
+                transition: 0.4s;
+                border-radius: 24px;
+            }
+            .toggle-slider:before {
+                position: absolute;
+                content: "";
+                height: 18px;
+                width: 18px;
+                left: 3px;
+                bottom: 3px;
+                background-color: white;
+                transition: 0.4s;
+                border-radius: 50%;
+            }
+            input:checked + .toggle-slider {
+                background-color: #42b72a;
+            }
+            input:checked + .toggle-slider:before {
+                transform: translateX(24px);
+            }
+            .fake-ad-badge {
+                background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+                color: white;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                box-shadow: 0 2px 4px rgba(238, 90, 111, 0.3);
+            }
+        </style>
+    </head>
+    <body class="bg-[#f0f2f5]">
+        <!-- Header -->
+        <header
+            class="bg-white shadow fixed z-20 w-full h-14 flex justify-between items-center"
+        >
+            <section class="w-80 h-full flex items-center justify-start px-4">
+                <a href="#" class="mr-2">
+                    <svg
+                        viewBox="0 0 36 36"
+                        fill="url(#jsc_s_b)"
+                        height="40"
+                        width="40"
+                    >
+                        <defs>
+                            <linearGradient
+                                x1="50%"
+                                x2="50%"
+                                y1="97.0782153%"
+                                y2="0%"
+                                id="jsc_s_b"
+                            >
+                                <stop offset="0%" stop-color="#0062E0"></stop>
+                                <stop offset="100%" stop-color="#19AFFF"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path
+                            d="M15 35.8C6.5 34.3 0 26.9 0 18 0 8.1 8.1 0 18 0s18 8.1 18 18c0 8.9-6.5 16.3-15 17.8l-1-.8h-4l-1 .8z"
+                        ></path>
+                        <path
+                            d="M25 23l.8-5H21v-3.5c0-1.4.5-2.5 2.7-2.5H26V7.4c-1.3-.2-2.7-.4-4-.4-4.1 0-7 2.5-7 7v4h-4.5v5H15v12.7c1 .2 2 .3 3 .3s2-.1 3-.3V23h4z"
+                            fill="#fff"
+                        ></path>
+                    </svg>
+                </a>
+                <div class="relative">
+                    <svg
+                        class="absolute top-3 left-3"
+                        fill="#666666"
+                        viewBox="0 0 16 16"
+                        width="1em"
+                        height="1em"
+                    >
+                        <g fill-rule="evenodd" transform="translate(-448 -544)">
+                            <g fill-rule="nonzero">
+                                <path
+                                    d="M10.743 2.257a6 6 0 1 1-8.485 8.486 6 6 0 0 1 8.485-8.486zm-1.06 1.06a4.5 4.5 0 1 0-6.365 6.364 4.5 4.5 0 0 0 6.364-6.363z"
+                                    transform="translate(448 544)"
+                                ></path>
+                            </g>
+                        </g>
+                    </svg>
+                    <input
+                        type="text"
+                        placeholder="Search Facebook"
+                        class="bg-[#f0f2f5] rounded-full pl-9 pr-2 py-2 text-[#050505] font-light outline-0 placeholder:text-gray-500 placeholder:font-light placeholder:leading-6 placeholder:text-[15px]"
+                    />
+                </div>
+            </section>
+
+            <!-- Center Menu -->
+            <section class="center-menu h-full w-[590px]">
+                <ul class="h-full flex justify-between items-center">
+                    <li class="h-full w-[112px] active">
+                        <a
+                            href="#"
+                            class="h-full border-y-[3px] border-t-transparent border-[#1b74e4] flex items-center justify-center"
+                            title="Home"
+                        >
+                            <svg
+                                viewBox="0 0 28 28"
+                                height="28"
+                                width="28"
+                                fill="#1b74e4"
+                            >
+                                <path
+                                    d="M25.825 12.29C25.824 12.289 25.823 12.288 25.821 12.286L15.027 2.937C14.752 2.675 14.392 2.527 13.989 2.521 13.608 2.527 13.248 2.675 13.001 2.912L2.175 12.29C1.756 12.658 1.629 13.245 1.868 13.759 2.079 14.215 2.567 14.479 3.069 14.479L5 14.479 5 23.729C5 24.695 5.784 25.479 6.75 25.479L11 25.479C11.552 25.479 12 25.031 12 24.479L12 18.309C12 18.126 12.148 17.979 12.33 17.979L15.67 17.979C15.852 17.979 16 18.126 16 18.309L16 24.479C16 25.031 16.448 25.479 17 25.479L21.25 25.479C22.217 25.479 23 24.695 23 23.729L23 14.479 24.931 14.479C25.433 14.479 25.921 14.215 26.132 13.759 26.371 13.245 26.244 12.658 25.825 12.29"
+                                ></path>
+                            </svg>
+                        </a>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Right Section with Toggle -->
+            <section
+                class="w-80 h-full flex items-center justify-end px-4 gap-4"
+            >
+                <div
+                    class="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg"
+                >
+                    <span class="text-sm font-semibold text-gray-700"
+                        >Dark</span
+                    >
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="dark-mode-toggle" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div
+                    class="flex items-center gap-3 bg-gray-100 px-3 py-2 rounded-lg"
+                >
+                    <span class="text-sm font-semibold text-gray-700"
+                        >Show Fake Ads</span
+                    >
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="fake-ads-toggle" checked />
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <button
+                    id="load-ads-btn"
+                    class="bg-[#1877f2] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[#166fe5]"
+                >
+                    Load Ads
+                </button>
+            </section>
+        </header>
+
+        <!-- Main Content -->
+        <main class="pt-16 min-h-screen">
+            <div class="max-w-[1200px] mx-auto flex gap-4">
+                <!-- Left Sidebar -->
+                <aside class="w-[280px] fixed">
+                    <nav class="p-4">
+                        <ul class="space-y-2">
+                            <li>
+                                <a
+                                    href="#"
+                                    class="flex items-center gap-3 px-2 py-2 hover:bg-gray-200 rounded-md"
+                                >
+                                    <div
+                                        class="w-9 h-9 bg-gray-300 rounded-full"
+                                    ></div>
+                                    <span class="font-medium text-[15px]"
+                                        >Your Profile</span
+                                    >
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="#"
+                                    class="flex items-center gap-3 px-2 py-2 hover:bg-gray-200 rounded-md"
+                                >
+                                    <div
+                                        class="w-9 h-9 flex items-center justify-center"
+                                    >
+                                        <svg
+                                            fill="#1877f2"
+                                            viewBox="0 0 24 24"
+                                            width="24"
+                                            height="24"
+                                        >
+                                            <path
+                                                d="M12 2c-5.52 0-10 4.48-10 10s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
+                                            ></path>
+                                        </svg>
+                                    </div>
+                                    <span class="font-medium text-[15px]"
+                                        >Friends</span
+                                    >
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </aside>
+
+                <!-- Center Feed -->
+                <div class="flex-1 ml-[296px] mr-[316px]">
+                    <!-- Create Post -->
+                    <div class="bg-white rounded-lg shadow mb-4 p-4">
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-10 h-10 bg-gray-300 rounded-full"
+                            ></div>
+                            <button
+                                class="flex-1 bg-gray-100 hover:bg-gray-200 rounded-full px-4 py-2 text-left text-gray-500"
+                            >
+                                What's on your mind?
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Feed Container -->
+                    <div id="feed-container">
+                        <!-- Ads will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Right Sidebar -->
+                <aside class="w-[300px] fixed right-0 top-16">
+                    <div class="p-4">
+                        <h3
+                            class="text-[#65676b] font-semibold text-[17px] mb-3"
+                        >
+                            Contacts
+                        </h3>
+                        <ul class="space-y-2">
+                            <li>
+                                <a
+                                    href="#"
+                                    class="flex items-center gap-2 px-2 py-1 hover:bg-gray-200 rounded-md"
+                                >
+                                    <div
+                                        class="w-9 h-9 bg-gray-300 rounded-full"
+                                    ></div>
+                                    <span class="text-[15px]">Contact 1</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+        <!-- Scripts -->
+        <script src="../../script/meta-ad-api.js"></script>
+        <script src="../../script/facebook-ad-renderer.js"></script>
+        <script src="../../script/feed-simulator.js"></script>
+
+        <script>
+            let currentAds = [];
+            const renderer = new FacebookAdRenderer("#feed-container");
+
+            // Load ads on button click
+            document
+                .getElementById("load-ads-btn")
+                .addEventListener("click", loadAds);
+
+            // Toggle change
+            document
+                .getElementById("fake-ads-toggle")
+                .addEventListener("change", function () {
+                    filterAndDisplayAds();
+                });
+
+            // Dark mode toggle
+            document
+                .getElementById("dark-mode-toggle")
+                .addEventListener("change", function () {
+                    document.body.classList.toggle("dark-mode");
+                    localStorage.setItem("dark-mode", this.checked);
+                });
+
+            // Load dark mode preference
+            if (localStorage.getItem("dark-mode") === "true") {
+                document.getElementById("dark-mode-toggle").checked = true;
+                document.body.classList.add("dark-mode");
+            }
+
+            function loadAds() {
+                // Load manual ads from organizer
+                const manualAdsData = localStorage.getItem("manual_ads_data");
+
+                if (!manualAdsData) {
+                    showNotification(
+                        "No ads found! Please add ads in the Ad Organizer first.",
+                        "error",
+                    );
+                    return;
+                }
+
+                try {
+                    const ads = JSON.parse(manualAdsData);
+                    if (ads && ads.length > 0) {
+                        currentAds = ads;
+                        filterAndDisplayAds();
+                        showNotification(
+                            `Loaded ${ads.length} ads successfully!`,
+                            "success",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading ads:", error);
+                    showNotification(
+                        "Error loading ads: " + error.message,
+                        "error",
+                    );
+                }
+            }
+
+            function filterAndDisplayAds() {
+                const showFake =
+                    document.getElementById("fake-ads-toggle").checked;
+
+                // Filter ads based on toggle
+                const filteredAds = currentAds.filter((ad) => {
+                    if (showFake) {
+                        return ad.isFakeAd === true;
+                    } else {
+                        return ad.isFakeAd !== true; // Show real ads (or undefined)
+                    }
+                });
+
+                // Clear feed
+                renderer.clearFeed();
+
+                if (filteredAds.length === 0) {
+                    const emptyMsg = document.createElement("div");
+                    emptyMsg.className =
+                        "bg-white rounded-lg shadow-sm p-8 text-center";
+                    emptyMsg.innerHTML = `
+                    <p class="text-gray-500 text-lg mb-2">No ${showFake ? "fake" : "real"} ads to display</p>
+                    <p class="text-gray-400 text-sm">Toggle the switch to see ${showFake ? "real" : "fake"} ads</p>
+                `;
+                    renderer.container.appendChild(emptyMsg);
+                    return;
+                }
+
+                // Render filtered ads
+                filteredAds.forEach((ad) => {
+                    const adElement = renderer.renderAd(ad, {
+                        showSponsoredLabel: true,
+                        showAdControls: true,
+                        profileImageUrl: ad.profilePictureUrl || null,
+                        adImageUrl: ad.imageUrl || null,
+                    });
+
+                    // Add fake ad badge (only for fake ads)
+                    if (ad.isFakeAd) {
+                        const badge = document.createElement("div");
+                        badge.className = "fake-ad-badge";
+                        badge.textContent = "🎭 Fake Ad";
+                        badge.style.cssText =
+                            "position: absolute; top: 8px; right: 8px; z-index: 10;";
+
+                        const adHeader = adElement.querySelector(".ad-header");
+                        if (adHeader) {
+                            adHeader.style.position = "relative";
+                            adHeader.appendChild(badge);
+                        }
+                    }
+
+                    renderer.container.appendChild(adElement);
+                });
+
+                // Update stats
+                const fakeCount = currentAds.filter((ad) => ad.isFakeAd).length;
+                const realCount = currentAds.length - fakeCount;
+                console.log(
+                    `Displaying ${filteredAds.length} ads (${fakeCount} fake, ${realCount} real)`,
+                );
+            }
+
+            function showNotification(message, type = "info") {
+                const notification = document.createElement("div");
+                notification.className = `fixed top-20 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 ${
+                    type === "success"
+                        ? "bg-green-500"
+                        : type === "error"
+                          ? "bg-red-500"
+                          : "bg-blue-500"
+                }`;
+                notification.textContent = message;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.opacity = "0";
+                    notification.style.transition = "opacity 0.3s";
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+
+            // Auto-load ads on page load
+            window.addEventListener("load", () => {
+                setTimeout(() => {
+                    const manualAdsData =
+                        localStorage.getItem("manual_ads_data");
+                    if (manualAdsData) {
+                        loadAds();
+                    }
+                }, 500);
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Facebook Ad Feed Example</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f0f2f5;
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-[#f0f2f5] p-8">
+
+    <div class="max-w-2xl mx-auto">
+        <!-- Simple Control Panel -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-4">
+            <h1 class="text-2xl font-bold mb-4">Facebook Ad Feed - Minimal Example</h1>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Meta Access Token</label>
+                    <input
+                        type="password"
+                        id="token-input"
+                        placeholder="Paste your token here"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    />
+                    <p class="text-xs text-gray-500 mt-1">
+                        Get from <a href="https://developers.facebook.com/tools/explorer/" target="_blank" class="text-blue-600 underline">Graph API Explorer</a>
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Search Term</label>
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="e.g., Nike, iPhone, Tesla"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    />
+                </div>
+
+                <div class="flex gap-2">
+                    <button
+                        id="search-btn"
+                        class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md font-medium hover:bg-blue-700"
+                    >
+                        Search Ads
+                    </button>
+                    <button
+                        id="clear-btn"
+                        class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                        Clear
+                    </button>
+                </div>
+
+                <div id="status" class="text-sm text-gray-600 text-center hidden"></div>
+            </div>
+        </div>
+
+        <!-- Feed Container -->
+        <div id="feed-container">
+            <!-- Ads will appear here -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../../script/meta-ad-api.js"></script>
+    <script src="../../script/facebook-ad-renderer.js"></script>
+    <script src="../../script/feed-simulator.js"></script>
+
+    <script>
+        // Initialize simulator when page loads
+        let simulator = null;
+
+        // Status display helper
+        function showStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `text-sm text-center p-2 rounded ${isError ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`;
+            status.classList.remove('hidden');
+
+            if (!isError) {
+                setTimeout(() => status.classList.add('hidden'), 3000);
+            }
+        }
+
+        // Search button handler
+        document.getElementById('search-btn').addEventListener('click', async () => {
+            const token = document.getElementById('token-input').value.trim();
+            const searchTerm = document.getElementById('search-input').value.trim();
+
+            // Validate inputs
+            if (!token) {
+                showStatus('Please enter your access token', true);
+                return;
+            }
+
+            if (!searchTerm) {
+                showStatus('Please enter a search term', true);
+                return;
+            }
+
+            // Initialize or update simulator with token
+            if (!simulator || simulator.config.accessToken !== token) {
+                simulator = new FeedSimulator({
+                    accessToken: token,
+                    containerSelector: '#feed-container',
+                    cacheEnabled: true
+                });
+            }
+
+            // Search for ads
+            try {
+                showStatus('Searching for ads...');
+
+                await simulator.searchAds(searchTerm, {
+                    country: 'US',
+                    limit: 10
+                });
+
+                const adCount = simulator.getCurrentAds().length;
+                showStatus(`✓ Loaded ${adCount} ads`);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus(`Error: ${error.message}`, true);
+            }
+        });
+
+        // Clear button handler
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            document.getElementById('feed-container').innerHTML = '';
+            showStatus('Feed cleared');
+        });
+
+        // Enter key to search
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('search-btn').click();
+            }
+        });
+
+        // Load saved token from localStorage
+        const savedToken = localStorage.getItem('meta_access_token');
+        if (savedToken) {
+            document.getElementById('token-input').value = savedToken;
+        }
+
+        // Save token on change
+        document.getElementById('token-input').addEventListener('change', (e) => {
+            const token = e.target.value.trim();
+            if (token) {
+                localStorage.setItem('meta_access_token', token);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Facebook Ad Feed Simulator</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    Oxygen, Ubuntu, Cantarell, sans-serif;
+                background-color: #f0f2f5;
+            }
+
+            .line-clamp-2 {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .ad-post {
+                animation: fadeInUp 0.3s ease;
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .control-panel {
+                position: sticky;
+                top: 70px;
+                max-height: calc(100vh - 90px);
+                overflow-y: auto;
+            }
+
+            #loading-indicator {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 1000;
+            }
+
+            .spinner {
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #1877f2;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .toast {
+                animation: slideIn 0.3s ease;
+            }
+
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            /* Facebook-style scrollbar */
+            ::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: #bcc0c4;
+                border-radius: 4px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #8e9196;
+            }
+        </style>
+    </head>
+    <body class="bg-[#f0f2f5]">
+        <!-- Header (Facebook-style) -->
+        <header
+            class="bg-white shadow fixed z-20 w-full h-14 flex justify-between items-center"
+        >
+            <div
+                class="max-w-screen-xl mx-auto w-full px-4 flex justify-between items-center"
+            >
+                <div class="flex items-center gap-3">
+                    <!-- Facebook Logo -->
+                    <svg
+                        viewBox="0 0 36 36"
+                        fill="url(#fb-gradient)"
+                        height="40"
+                        width="40"
+                    >
+                        <defs>
+                            <linearGradient
+                                x1="50%"
+                                x2="50%"
+                                y1="97.0782153%"
+                                y2="0%"
+                                id="fb-gradient"
+                            >
+                                <stop offset="0%" stop-color="#0062E0"></stop>
+                                <stop offset="100%" stop-color="#19AFFF"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path
+                            d="M15 35.8C6.5 34.3 0 26.9 0 18 0 8.1 8.1 0 18 0s18 8.1 18 18c0 8.9-6.5 16.3-15 17.8l-1-.8h-4l-1 .8z"
+                        ></path>
+                        <path
+                            d="M25 23l.8-5H21v-3.5c0-1.4.5-2.5 2.7-2.5H26V7.4c-1.3-.2-2.7-.4-4-.4-4.1 0-7 2.5-7 7v4h-4.5v5H15v12.7c1 .2 2 .3 3 .3s2-.1 3-.3V23h4z"
+                            fill="#fff"
+                        ></path>
+                    </svg>
+                    <h1 class="text-xl font-semibold text-[#050505]">
+                        Ad Feed Simulator
+                    </h1>
+                </div>
+                <div class="text-sm text-gray-600">
+                    Meta Ad Library Integration
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="pt-16 min-h-screen">
+            <div class="max-w-screen-xl mx-auto px-4 py-4">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <!-- Left Column: Control Panel -->
+                    <div class="lg:col-span-1">
+                        <div
+                            class="control-panel bg-white rounded-lg shadow-sm p-4"
+                        >
+                            <h2 class="text-lg font-bold text-[#050505] mb-4">
+                                Control Panel
+                            </h2>
+
+                            <!-- API Configuration -->
+                            <div class="mb-6">
+                                <h3
+                                    class="text-sm font-semibold text-[#65676b] mb-3"
+                                >
+                                    API Configuration
+                                </h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label
+                                            class="block text-sm text-[#050505] mb-1"
+                                            >Access Token</label
+                                        >
+                                        <input
+                                            type="password"
+                                            id="access-token"
+                                            placeholder="Enter your Meta access token"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1877f2]"
+                                        />
+                                        <p class="text-xs text-[#65676b] mt-1">
+                                            Get token from
+                                            <a
+                                                href="https://developers.facebook.com/tools/explorer/"
+                                                target="_blank"
+                                                class="text-[#1877f2] hover:underline"
+                                                >Graph API Explorer</a
+                                            >
+                                        </p>
+                                    </div>
+                                    <button
+                                        id="save-token-btn"
+                                        class="w-full bg-[#1877f2] text-white py-2 rounded-md text-sm font-semibold hover:bg-[#166fe5] transition-colors"
+                                    >
+                                        Save Token
+                                    </button>
+                                </div>
+                            </div>
+
+                            <hr class="my-4 border-gray-200" />
+
+                            <!-- Search Configuration -->
+                            <div class="mb-6">
+                                <h3
+                                    class="text-sm font-semibold text-[#65676b] mb-3"
+                                >
+                                    Search Ads
+                                </h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label
+                                            class="block text-sm text-[#050505] mb-1"
+                                            >Search Terms</label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="search-terms"
+                                            placeholder="e.g., Nike, iPhone, etc."
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1877f2]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="block text-sm text-[#050505] mb-1"
+                                            >Country</label
+                                        >
+                                        <select
+                                            id="country-select"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1877f2]"
+                                        >
+                                            <option value="US">
+                                                United States
+                                            </option>
+                                            <option value="PH">
+                                                Philippines
+                                            </option>
+                                            <option value="GB">
+                                                United Kingdom
+                                            </option>
+                                            <option value="CA">Canada</option>
+                                            <option value="AU">
+                                                Australia
+                                            </option>
+                                            <option value="DE">Germany</option>
+                                            <option value="FR">France</option>
+                                            <option value="IN">India</option>
+                                            <option value="BR">Brazil</option>
+                                            <option value="JP">Japan</option>
+                                            <option value="MX">Mexico</option>
+                                            <option value="SG">
+                                                Singapore
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="block text-sm text-[#050505] mb-1"
+                                            >Ad Type</label
+                                        >
+                                        <select
+                                            id="ad-type-select"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1877f2]"
+                                        >
+                                            <option value="ALL">All Ads</option>
+                                            <option
+                                                value="POLITICAL_AND_ISSUE_ADS"
+                                            >
+                                                Political & Issue Ads
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="block text-sm text-[#050505] mb-1"
+                                            >Number of Ads</label
+                                        >
+                                        <input
+                                            type="number"
+                                            id="ad-limit"
+                                            min="1"
+                                            max="50"
+                                            value="10"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1877f2]"
+                                        />
+                                    </div>
+
+                                    <button
+                                        id="search-ads-btn"
+                                        class="w-full bg-[#42b72a] text-white py-2 rounded-md text-sm font-semibold hover:bg-[#36a420] transition-colors"
+                                    >
+                                        Search Ads
+                                    </button>
+                                </div>
+                            </div>
+
+                            <hr class="my-4 border-gray-200" />
+
+                            <!-- Actions -->
+                            <div class="mb-6">
+                                <h3
+                                    class="text-sm font-semibold text-[#65676b] mb-3"
+                                >
+                                    Actions
+                                </h3>
+                                <div class="space-y-2">
+                                    <button
+                                        id="refresh-btn"
+                                        class="w-full bg-white border border-gray-300 text-[#050505] py-2 rounded-md text-sm font-semibold hover:bg-gray-50 transition-colors"
+                                    >
+                                        🔄 Refresh Feed
+                                    </button>
+                                    <button
+                                        id="clear-feed-btn"
+                                        class="w-full bg-white border border-gray-300 text-[#050505] py-2 rounded-md text-sm font-semibold hover:bg-gray-50 transition-colors"
+                                    >
+                                        🗑️ Clear Feed
+                                    </button>
+                                    <button
+                                        id="download-btn"
+                                        class="w-full bg-white border border-gray-300 text-[#050505] py-2 rounded-md text-sm font-semibold hover:bg-gray-50 transition-colors"
+                                    >
+                                        💾 Download Ads JSON
+                                    </button>
+                                    <button
+                                        id="clear-cache-btn"
+                                        class="w-full bg-white border border-gray-300 text-[#65676b] py-2 rounded-md text-sm font-semibold hover:bg-gray-50 transition-colors"
+                                    >
+                                        🧹 Clear Cache
+                                    </button>
+                                    <button
+                                        id="load-manual-ads-btn"
+                                        class="w-full bg-purple-600 text-white py-2 rounded-md text-sm font-semibold hover:bg-purple-700 transition-colors"
+                                    >
+                                        📥 Load Manual Ads
+                                    </button>
+                                </div>
+                            </div>
+
+                            <hr class="my-4 border-gray-200" />
+
+                            <!-- Settings -->
+                            <div class="mb-4">
+                                <h3
+                                    class="text-sm font-semibold text-[#65676b] mb-3"
+                                >
+                                    Settings
+                                </h3>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            id="auto-refresh-toggle"
+                                            class="w-4 h-4 text-[#1877f2]"
+                                        />
+                                        <span class="text-sm text-[#050505]"
+                                            >Auto-refresh (5 min)</span
+                                        >
+                                    </label>
+                                    <label class="flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            id="cache-toggle"
+                                            checked
+                                            class="w-4 h-4 text-[#1877f2]"
+                                        />
+                                        <span class="text-sm text-[#050505]"
+                                            >Enable caching</span
+                                        >
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="mt-6 p-3 bg-gray-50 rounded-md">
+                                <div class="text-xs text-[#65676b]">
+                                    <div class="flex justify-between mb-1">
+                                        <span>Status:</span>
+                                        <span
+                                            id="status-text"
+                                            class="font-semibold text-[#42b72a]"
+                                            >Ready</span
+                                        >
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Ads Loaded:</span>
+                                        <span
+                                            id="ads-count"
+                                            class="font-semibold"
+                                            >0</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Info Box -->
+                            <div
+                                class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md"
+                            >
+                                <p class="text-xs text-blue-800">
+                                    <strong>Note:</strong> You need a Meta
+                                    access token to fetch ads. Visit the Graph
+                                    API Explorer to generate one.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Feed -->
+                    <div class="lg:col-span-2">
+                        <div id="feed-container" class="space-y-4">
+                            <!-- Ads will be rendered here -->
+                            <div
+                                class="bg-white rounded-lg shadow-sm p-8 text-center"
+                            >
+                                <div class="text-gray-400 mb-4">
+                                    <svg
+                                        class="w-16 h-16 mx-auto mb-4"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </div>
+                                <h3
+                                    class="text-lg font-semibold text-gray-700 mb-2"
+                                >
+                                    No Ads Loaded
+                                </h3>
+                                <p class="text-sm text-gray-500 mb-4">
+                                    Configure your API token and search for ads
+                                    to populate the feed.
+                                </p>
+                                <div
+                                    class="space-y-2 text-left max-w-md mx-auto bg-gray-50 p-4 rounded-lg"
+                                >
+                                    <p class="text-xs text-gray-600">
+                                        <strong>Quick Start:</strong>
+                                    </p>
+                                    <ol
+                                        class="text-xs text-gray-600 space-y-1 list-decimal list-inside"
+                                    >
+                                        <li>
+                                            Get an access token from Meta's
+                                            Graph API Explorer
+                                        </li>
+                                        <li>
+                                            Paste it in the "Access Token" field
+                                            and save
+                                        </li>
+                                        <li>
+                                            Enter search terms (e.g., "Nike",
+                                            "iPhone")
+                                        </li>
+                                        <li>
+                                            Click "Search Ads" to load ads into
+                                            the feed
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Loading Indicator -->
+        <div id="loading-indicator" class="hidden">
+            <div
+                class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center"
+            >
+                <div class="spinner mb-3"></div>
+                <p class="text-sm text-[#65676b] font-semibold">
+                    Loading ads...
+                </p>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div
+            id="toast-container"
+            class="fixed top-4 right-4 z-50 flex flex-col items-end"
+        ></div>
+
+        <!-- Scripts -->
+        <script src="../../script/meta-ad-api.js"></script>
+        <script src="../../script/facebook-ad-renderer.js"></script>
+        <script src="../../script/feed-simulator.js"></script>
+
+        <script>
+            // Initialize the Feed Simulator
+            let feedSimulator = null;
+
+            // Load saved token from localStorage
+            const savedToken = localStorage.getItem("meta_access_token");
+            if (savedToken) {
+                document.getElementById("access-token").value = savedToken;
+                initializeSimulator(savedToken);
+            }
+
+            // Initialize simulator with token
+            function initializeSimulator(token) {
+                feedSimulator = new FeedSimulator({
+                    accessToken: token,
+                    containerSelector: "#feed-container",
+                    cacheEnabled:
+                        document.getElementById("cache-toggle").checked,
+                    autoRefresh: document.getElementById("auto-refresh-toggle")
+                        .checked,
+                });
+
+                updateStatus("Ready", "success");
+
+                // Load manual ads if they exist
+                loadManualAds();
+            }
+
+            // Load manual ads from organizer
+            function loadManualAds() {
+                const manualAdsData = localStorage.getItem("manual_ads_data");
+                if (manualAdsData) {
+                    try {
+                        const ads = JSON.parse(manualAdsData);
+                        if (ads && ads.length > 0) {
+                            const renderer = new FacebookAdRenderer(
+                                "#feed-container",
+                            );
+                            renderer.clearFeed();
+
+                            // Render each ad with images - append to container
+                            ads.forEach((ad) => {
+                                const adElement = renderer.renderAd(ad, {
+                                    showSponsoredLabel: true,
+                                    showAdControls: true,
+                                    profileImageUrl:
+                                        ad.profilePictureUrl || null,
+                                    adImageUrl: ad.imageUrl || null,
+                                });
+
+                                // Append to container
+                                if (renderer.container && adElement) {
+                                    renderer.container.appendChild(adElement);
+                                }
+                            });
+
+                            updateStatus("Ready", "success");
+                            document.getElementById("ads-count").textContent =
+                                ads.length;
+                            showToast(
+                                `Loaded ${ads.length} manual ads from organizer`,
+                                "success",
+                            );
+                        }
+                    } catch (error) {
+                        console.error("Error loading manual ads:", error);
+                        showToast(
+                            "Error loading manual ads: " + error.message,
+                            "error",
+                        );
+                    }
+                }
+            }
+
+            // Save Token Button
+            document
+                .getElementById("save-token-btn")
+                .addEventListener("click", () => {
+                    const token = document
+                        .getElementById("access-token")
+                        .value.trim();
+
+                    if (!token) {
+                        showToast("Please enter an access token", "error");
+                        return;
+                    }
+
+                    localStorage.setItem("meta_access_token", token);
+                    initializeSimulator(token);
+                    showToast("Access token saved successfully!", "success");
+                });
+
+            // Search Ads Button
+            document
+                .getElementById("search-ads-btn")
+                .addEventListener("click", async () => {
+                    if (!feedSimulator || !feedSimulator.api) {
+                        showToast(
+                            "Please configure your access token first",
+                            "error",
+                        );
+                        return;
+                    }
+
+                    const searchTerms = document
+                        .getElementById("search-terms")
+                        .value.trim();
+                    if (!searchTerms) {
+                        showToast("Please enter search terms", "error");
+                        return;
+                    }
+
+                    const country =
+                        document.getElementById("country-select").value;
+                    const adType =
+                        document.getElementById("ad-type-select").value;
+                    const limit = parseInt(
+                        document.getElementById("ad-limit").value,
+                    );
+
+                    updateStatus("Searching...", "loading");
+
+                    await feedSimulator.searchAds(searchTerms, {
+                        country: country,
+                        ad_type: adType,
+                        limit: limit,
+                    });
+
+                    updateAdsCount();
+                    updateStatus("Ready", "success");
+                });
+
+            // Refresh Button
+            document
+                .getElementById("refresh-btn")
+                .addEventListener("click", async () => {
+                    if (!feedSimulator) {
+                        showToast("Simulator not initialized", "error");
+                        return;
+                    }
+                    await feedSimulator.refresh();
+                    updateAdsCount();
+                });
+
+            // Clear Feed Button
+            document
+                .getElementById("clear-feed-btn")
+                .addEventListener("click", () => {
+                    if (feedSimulator && feedSimulator.renderer) {
+                        feedSimulator.renderer.clearFeed();
+                        feedSimulator.currentAds = [];
+                        updateAdsCount();
+                        showToast("Feed cleared", "info");
+                    }
+                });
+
+            // Download Button
+            document
+                .getElementById("download-btn")
+                .addEventListener("click", () => {
+                    if (
+                        !feedSimulator ||
+                        feedSimulator.currentAds.length === 0
+                    ) {
+                        showToast("No ads to download", "error");
+                        return;
+                    }
+                    feedSimulator.downloadAds();
+                    showToast("Downloading ads...", "success");
+                });
+
+            // Clear Cache Button
+            document
+                .getElementById("clear-cache-btn")
+                .addEventListener("click", () => {
+                    if (feedSimulator) {
+                        feedSimulator.clearCache();
+                        showToast("Cache cleared", "success");
+                    }
+                });
+
+            // Load Manual Ads Button
+            document
+                .getElementById("load-manual-ads-btn")
+                .addEventListener("click", () => {
+                    loadManualAds();
+                });
+
+            // Auto-refresh Toggle
+            document
+                .getElementById("auto-refresh-toggle")
+                .addEventListener("change", (e) => {
+                    if (feedSimulator) {
+                        feedSimulator.updateConfig({
+                            autoRefresh: e.target.checked,
+                        });
+                        showToast(
+                            e.target.checked
+                                ? "Auto-refresh enabled"
+                                : "Auto-refresh disabled",
+                            "info",
+                        );
+                    }
+                });
+
+            // Cache Toggle
+            document
+                .getElementById("cache-toggle")
+                .addEventListener("change", (e) => {
+                    if (feedSimulator) {
+                        feedSimulator.updateConfig({
+                            cacheEnabled: e.target.checked,
+                        });
+                        showToast(
+                            e.target.checked
+                                ? "Caching enabled"
+                                : "Caching disabled",
+                            "info",
+                        );
+                    }
+                });
+
+            // Enter key to search
+            document
+                .getElementById("search-terms")
+                .addEventListener("keypress", (e) => {
+                    if (e.key === "Enter") {
+                        document.getElementById("search-ads-btn").click();
+                    }
+                });
+
+            // Helper Functions
+            function updateStatus(text, type) {
+                const statusEl = document.getElementById("status-text");
+                if (statusEl) {
+                    statusEl.textContent = text;
+                    statusEl.className = "font-semibold";
+
+                    if (type === "success") {
+                        statusEl.classList.add("text-[#42b72a]");
+                    } else if (type === "error") {
+                        statusEl.classList.add("text-[#f02849]");
+                    } else if (type === "loading") {
+                        statusEl.classList.add("text-[#1877f2]");
+                    }
+                }
+            }
+
+            function updateAdsCount() {
+                const countEl = document.getElementById("ads-count");
+                if (countEl && feedSimulator) {
+                    countEl.textContent = feedSimulator.currentAds.length;
+                }
+            }
+
+            function showToast(message, type) {
+                if (feedSimulator) {
+                    feedSimulator.showToast(message, type);
+                }
+            }
+
+            // Demo: Load some sample search terms
+            const sampleSearches = [
+                "Nike",
+                "iPhone",
+                "Tesla",
+                "Coca Cola",
+                "Amazon",
+            ];
+            const randomSearch =
+                sampleSearches[
+                    Math.floor(Math.random() * sampleSearches.length)
+                ];
+            document.getElementById("search-terms").placeholder =
+                `e.g., ${randomSearch}`;
+
+            // Check for manual ads on page load
+            setTimeout(() => {
+                loadManualAds();
+            }, 500);
+        </script>
+    </body>
+</html>
