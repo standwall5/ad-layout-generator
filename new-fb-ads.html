@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facebook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background-color: #f0f2f5;
+      }
+
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .ad-post {
+        animation: fadeInUp 0.3s ease;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #b8bbbf;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #8a8d91;
+      }
+
+      /* Dark Mode */
+      body.dark-mode {
+        background-color: #18191a;
+      }
+      body.dark-mode header {
+        background-color: #242526;
+        border-bottom: 1px solid #3e4042;
+      }
+      body.dark-mode .bg-white {
+        background-color: #242526;
+        color: #e4e6eb !important;
+      }
+      body.dark-mode .ad-post {
+        color: #e4e6eb;
+      }
+      body.dark-mode .ad-post * {
+        color: #e4e6eb !important;
+      }
+      body.dark-mode .text-\[\#050505\] {
+        color: #e4e6eb !important;
+      }
+      body.dark-mode .text-\[\#65676b\] {
+        color: #b0b3b8 !important;
+      }
+      body.dark-mode .bg-gray-100,
+      body.dark-mode .bg-\[\#f0f2f5\] {
+        background-color: #3a3b3c !important;
+      }
+      body.dark-mode .bg-gray-50 {
+        background-color: #3a3b3c !important;
+      }
+      body.dark-mode .text-gray-700 {
+        color: #b0b3b8 !important;
+      }
+      body.dark-mode .text-gray-500 {
+        color: #b0b3b8 !important;
+      }
+      body.dark-mode .text-gray-400 {
+        color: #8a8d91 !important;
+      }
+      body.dark-mode input[type="text"] {
+        background-color: #3a3b3c;
+        color: #e4e6eb;
+      }
+      body.dark-mode input[type="text"]::placeholder {
+        color: #b0b3b8;
+      }
+      body.dark-mode .hover\:bg-gray-200:hover,
+      body.dark-mode .hover\:bg-gray-100:hover {
+        background-color: #3a3b3c !important;
+      }
+      body.dark-mode .border-gray-200 {
+        border-color: #3e4042 !important;
+      }
+      body.dark-mode .bg-gray-200 {
+        background-color: #4a4b4c !important;
+        color: #e4e6eb !important;
+      }
+      body.dark-mode .bg-gray-200:hover {
+        background-color: #5a5b5c !important;
+      }
+      body.dark-mode .text-\[\#050505\].bg-gray-200 {
+        color: #e4e6eb !important;
+      }
+
+      /* Toggle Switch */
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 24px;
+      }
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 24px;
+      }
+      .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+      input:checked + .toggle-slider {
+        background-color: #42b72a;
+      }
+      input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+      }
+
+      .fake-ad-badge {
+        background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 4px rgba(238, 90, 111, 0.3);
+      }
+
+      /* Better shadows */
+      .card-shadow {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Hover effects */
+      .nav-item:hover {
+        background-color: #f2f2f2;
+      }
+      body.dark-mode .nav-item:hover {
+        background-color: #3a3b3c;
+      }
+    </style>
+  </head>
+  <body class="bg-[#f0f2f5]">
+    <!-- Header -->
+    <header
+      class="bg-white shadow-sm fixed z-20 w-full h-14 flex justify-between items-center px-4"
+    >
+      <!-- Left Section -->
+      <section class="flex items-center gap-2">
+        <a href="#" class="mr-2">
+          <svg
+            viewBox="0 0 36 36"
+            fill="url(#fb-gradient)"
+            height="40"
+            width="40"
+          >
+            <defs>
+              <linearGradient
+                x1="50%"
+                x2="50%"
+                y1="97.0782153%"
+                y2="0%"
+                id="fb-gradient"
+              >
+                <stop offset="0%" stop-color="#0062E0"></stop>
+                <stop offset="100%" stop-color="#19AFFF"></stop>
+              </linearGradient>
+            </defs>
+            <path
+              d="M15 35.8C6.5 34.3 0 26.9 0 18 0 8.1 8.1 0 18 0s18 8.1 18 18c0 8.9-6.5 16.3-15 17.8l-1-.8h-4l-1 .8z"
+            ></path>
+            <path
+              d="M25 23l.8-5H21v-3.5c0-1.4.5-2.5 2.7-2.5H26V7.4c-1.3-.2-2.7-.4-4-.4-4.1 0-7 2.5-7 7v4h-4.5v5H15v12.7c1 .2 2 .3 3 .3s2-.1 3-.3V23h4z"
+              fill="#fff"
+            ></path>
+          </svg>
+        </a>
+        <div class="relative">
+          <svg
+            class="absolute top-2.5 left-3"
+            fill="#65676b"
+            viewBox="0 0 16 16"
+            width="16"
+            height="16"
+          >
+            <g fill-rule="evenodd" transform="translate(-448 -544)">
+              <path
+                d="M10.743 2.257a6 6 0 1 1-8.485 8.486 6 6 0 0 1 8.485-8.486zm-1.06 1.06a4.5 4.5 0 1 0-6.365 6.364 4.5 4.5 0 0 0 6.364-6.363z"
+                transform="translate(448 544)"
+              ></path>
+              <path
+                d="M10.39 8.75a2.94 2.94 0 0 0-.199.432c-.155.417-.23.849-.172 1.284.055.415.232.794.54 1.103a.75.75 0 0 0 1.112-1.004l-.051-.057a.39.39 0 0 1-.114-.24c-.021-.155.014-.356.09-.563.031-.081.06-.145.08-.182l.012-.022a.75.75 0 1 0-1.299-.752z"
+                transform="translate(448 544)"
+              ></path>
+              <path
+                d="M9.557 11.659c.038-.018.09-.04.15-.064.207-.077.408-.112.562-.092.08.01.143.034.198.077l.041.036a.75.75 0 0 0 1.06-1.06 1.881 1.881 0 0 0-1.103-.54c-.435-.058-.867.017-1.284.172-.189.07-.336.143-.433.2a.75.75 0 0 0 .624 1.356l.066-.027.12-.061z"
+                transform="translate(448 544)"
+              ></path>
+              <path
+                d="m13.463 15.142-.04-.044-3.574-4.192c-.599-.703.355-1.656 1.058-1.057l4.191 3.574.044.04c.058.059.122.137.182.24.249.425.249.96-.154 1.41l-.057.057c-.45.403-.986.403-1.411.154a1.182 1.182 0 0 1-.24-.182zm.617-.616.444-.444a.31.31 0 0 0-.063-.052c-.093-.055-.263-.055-.35.024l.208.232.207-.206.006.007-.22.257-.026-.024.033-.034.025.027-.257.22-.007-.007z"
+                transform="translate(448 544)"
+              ></path>
+            </g>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search Facebook"
+            class="bg-[#f0f2f5] rounded-full pl-10 pr-4 py-2 w-60 text-[15px] text-[#050505] outline-none placeholder:text-[#65676b]"
+          />
+        </div>
+      </section>
+
+      <!-- Center Menu -->
+      <section class="flex-1 flex justify-center">
+        <div class="flex h-14">
+          <a
+            href="#"
+            class="flex items-center justify-center px-12 border-b-4 border-[#1877f2] -mb-px"
+          >
+            <svg viewBox="0 0 28 28" height="28" width="28" fill="#1877f2">
+              <path
+                d="M25.825 12.29C25.824 12.289 25.823 12.288 25.821 12.286L15.027 2.937C14.752 2.675 14.392 2.527 13.989 2.521 13.608 2.527 13.248 2.675 13.001 2.912L2.175 12.29C1.756 12.658 1.629 13.245 1.868 13.759 2.079 14.215 2.567 14.479 3.069 14.479L5 14.479 5 23.729C5 24.695 5.784 25.479 6.75 25.479L11 25.479C11.552 25.479 12 25.031 12 24.479L12 18.309C12 18.126 12.148 17.979 12.33 17.979L15.67 17.979C15.852 17.979 16 18.126 16 18.309L16 24.479C16 25.031 16.448 25.479 17 25.479L21.25 25.479C22.217 25.479 23 24.695 23 23.729L23 14.479 24.931 14.479C25.433 14.479 25.921 14.215 26.132 13.759 26.371 13.245 26.244 12.658 25.825 12.29"
+              ></path>
+            </svg>
+          </a>
+        </div>
+      </section>
+
+      <!-- Right Section -->
+      <section class="flex items-center gap-2">
+        <div class="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg">
+          <span class="text-xs font-semibold text-gray-700">Dark</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="dark-mode-toggle" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg">
+          <span class="text-xs font-semibold text-gray-700">Fake</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="fake-ads-toggle" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <button
+          id="load-ads-btn"
+          class="bg-[#1877f2] text-white px-4 py-1.5 rounded-md text-sm font-semibold hover:bg-[#166fe5] transition-colors"
+        >
+          Load Ads
+        </button>
+      </section>
+    </header>
+
+    <!-- Main Content -->
+    <!-- Main Content -->
+    <main class="pt-16 min-h-screen">
+      <div class="max-w-[1250px] mx-auto px-4">
+        <div class="flex gap-4 pt-4">
+          <!-- Left Sidebar -->
+          <aside class="w-[280px] fixed left-4">
+            <nav>
+              <ul class="space-y-1">
+                <li>
+                  <a
+                    href="#"
+                    class="nav-item flex items-center gap-3 px-2 py-2 rounded-lg transition-colors"
+                  >
+                    <div class="w-9 h-9 bg-gray-300 rounded-full"></div>
+                    <span class="font-semibold text-[15px] text-[#050505]"
+                      >Your Name</span
+                    >
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="nav-item flex items-center gap-3 px-2 py-2 rounded-lg transition-colors"
+                  >
+                    <svg
+                      fill="#1877f2"
+                      viewBox="0 0 28 28"
+                      width="28"
+                      height="28"
+                    >
+                      <path
+                        d="M17.5 23.75 21.75 19.5 17.5 15.25 19.521 13.229 25.271 18.979 26.729 20.437 25.271 21.896 19.521 27.646z"
+                      ></path>
+                      <path
+                        d="M10.5 23.75 6.25 19.5 10.5 15.25 8.479 13.229 2.729 18.979 1.271 20.437 2.729 21.896 8.479 27.646z"
+                      ></path>
+                    </svg>
+                    <span class="font-medium text-[15px] text-[#050505]"
+                      >Friends</span
+                    >
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="nav-item flex items-center gap-3 px-2 py-2 rounded-lg transition-colors"
+                  >
+                    <svg
+                      fill="#1877f2"
+                      viewBox="0 0 28 28"
+                      width="28"
+                      height="28"
+                    >
+                      <path
+                        d="M23.5 9.5H10.25a.75.75 0 00-.75.75v7c0 .414.336.75.75.75H17v5.5H4.5v-19h19v5zm0 14h-5v-6.25a.75.75 0 00-.75-.75H11V11h12.5v12.5z"
+                      ></path>
+                    </svg>
+                    <span class="font-medium text-[15px] text-[#050505]"
+                      >Groups</span
+                    >
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </aside>
+
+          <!-- Center Feed -->
+          <div class="flex-1 ml-[296px] mr-[316px] max-w-[590px]">
+            <!-- Create Post -->
+            <div class="bg-white rounded-lg card-shadow mb-4 p-3">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                <button
+                  class="flex-1 bg-[#f0f2f5] hover:bg-gray-200 rounded-full px-4 py-2.5 text-left text-[#65676b] text-[17px] transition-colors"
+                >
+                  What's on your mind?
+                </button>
+              </div>
+              <div class="border-t border-gray-200 pt-2 flex justify-around">
+                <button
+                  class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <svg
+                    fill="#f3425f"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                  >
+                    <g fill-rule="evenodd" transform="translate(-444 -156)">
+                      <g>
+                        <path
+                          d="M113.029 2.514c-.363-.088-.746.014-1.048.234l-2.57 1.88a.999.999 0 0 0-.411.807v8.13a1 1 0 0 0 .41.808l2.602 1.901c.219.16.477.242.737.242.253 0 .508-.077.725-.235.34-.246.526-.627.526-1.074v-11.97c0-.44-.169-.821-.49-1.063-.29-.219-.65-.313-.98-.396zM75.98 11.74c-.22-.22-.513-.344-.823-.344H54.144c-.31 0-.603.123-.823.344-.22.22-.344.514-.344.823v10.276c0 .31.124.603.344.823.22.22.513.344.823.344h21.013c.31 0 .603-.124.823-.344.22-.22.344-.513.344-.823V12.563c0-.31-.124-.603-.344-.823z"
+                          transform="translate(354.5 149.5)"
+                        ></path>
+                      </g>
+                    </g>
+                  </svg>
+                  <span class="text-[#65676b] font-semibold text-[15px]"
+                    >Live video</span
+                  >
+                </button>
+                <button
+                  class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <svg
+                    fill="#45bd62"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                  >
+                    <g fill-rule="evenodd" transform="translate(-444 -156)">
+                      <g>
+                        <path
+                          d="m96.968 22.425-.648.057a2.692 2.692 0 0 1-1.978-.625 2.69 2.69 0 0 1-.96-1.84L92.01 4.32a2.702 2.702 0 0 1 .79-2.156c.47-.472 1.111-.731 1.774-.79l2.58-.225a.498.498 0 0 1 .507.675 4.189 4.189 0 0 0-.251 1.11L96.017 18.85a4.206 4.206 0 0 0 .977 3.091s.459.364-.026.485zm8.524-16.327a1.75 1.75 0 1 1-3.485.305 1.75 1.75 0 0 1 3.485-.305zm5.85 16.07a.5.5 0 0 1-.506.052c-4.206-2.503-4.595-5.315-4.595-5.315V8.973s1.003.28 4.232 2.22a.5.5 0 0 1 .219.425v10.096a.5.5 0 0 1-.35.477z"
+                          transform="translate(353.5 149.5)"
+                        ></path>
+                        <path
+                          d="M104.56 27.103a.5.5 0 0 1-.502-.499v-3.968a.5.5 0 0 1 .502-.499h15.783a.5.5 0 0 1 .502.499v3.968a.5.5 0 0 1-.502.499h-15.783z"
+                          transform="translate(353.5 149.5)"
+                        ></path>
+                      </g>
+                    </g>
+                  </svg>
+                  <span class="text-[#65676b] font-semibold text-[15px]"
+                    >Photo/video</span
+                  >
+                </button>
+              </div>
+            </div>
+
+            <!-- Feed Container -->
+            <div id="feed-container">
+              <!-- Ads will be inserted here -->
+            </div>
+          </div>
+
+          <!-- Right Sidebar -->
+          <aside class="w-[300px] fixed right-4 top-20">
+            <div class="bg-white rounded-lg card-shadow p-3">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-[#65676b] font-semibold text-[17px]">
+                  Contacts
+                </h3>
+                <div class="flex gap-2">
+                  <button class="p-2 rounded-full hover:bg-gray-100">
+                    <svg
+                      fill="#65676b"
+                      viewBox="0 0 16 16"
+                      width="16"
+                      height="16"
+                    >
+                      <g fill-rule="evenodd" transform="translate(-448 -544)">
+                        <path
+                          d="M10.743 2.257a6 6 0 1 1-8.485 8.486 6 6 0 0 1 8.485-8.486zm-1.06 1.06a4.5 4.5 0 1 0-6.365 6.364 4.5 4.5 0 0 0 6.364-6.363z"
+                          transform="translate(448 544)"
+                        ></path>
+                        <path
+                          d="M10.39 8.75a2.94 2.94 0 0 0-.199.432c-.155.417-.23.849-.172 1.284.055.415.232.794.54 1.103a.75.75 0 0 0 1.112-1.004l-.051-.057a.39.39 0 0 1-.114-.24c-.021-.155.014-.356.09-.563.031-.081.06-.145.08-.182l.012-.022a.75.75 0 1 0-1.299-.752z"
+                          transform="translate(448 544)"
+                        ></path>
+                      </g>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <ul class="space-y-0.5">
+                <li>
+                  <a
+                    href="#"
+                    class="flex items-center gap-2 px-2 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <div class="w-9 h-9 bg-gray-300 rounded-full relative">
+                      <div
+                        class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"
+                      ></div>
+                    </div>
+                    <span class="text-[15px] text-[#050505] font-medium"
+                      >Contact Name</span
+                    >
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <!-- Load Renderer Script -->
+    <script>
+      // Facebook Ad Renderer - Integrated
+      class FacebookAdRenderer {
+        constructor(containerSelector) {
+          this.container = document.querySelector(containerSelector);
+          this.TEXT_PREVIEW_LENGTH = 200;
+          this.adsDataFile = "ads_data.json";
+        }
+
+        clearFeed() {
+          this.container.innerHTML = "";
+        }
+
+        async loadAdsFromFile() {
+          try {
+            const response = await fetch(this.adsDataFile);
+            if (!response.ok)
+              throw new Error(`HTTP error! status: ${response.status}`);
+            const ads = await response.json();
+            return ads;
+          } catch (error) {
+            console.error("Error loading ads:", error);
+            throw error;
+          }
+        }
+
+        renderAd(adData, options = {}) {
+          const { showSponsoredLabel = true, showAdControls = true } = options;
+          const adElement = document.createElement("div");
+          adElement.className = "ad-post bg-white rounded-lg card-shadow mb-4";
+
+          const profileImg =
+            adData.profilePictureUrl || this.getPlaceholderImage(40);
+          const mediaUrl = adData.imageUrl || adData.videoUrl || "";
+          const hasMedia = mediaUrl && mediaUrl.length > 0;
+          const bodyText = adData.bodyText || "";
+          const needsTruncation = bodyText.length > this.TEXT_PREVIEW_LENGTH;
+          const truncatedText = needsTruncation
+            ? bodyText.substring(0, this.TEXT_PREVIEW_LENGTH) + "..."
+            : bodyText;
+
+          adElement.innerHTML = `
+            <div class="ad-header p-3 flex items-start justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="${profileImg}" alt="${adData.pageName}" 
+                         class="w-10 h-10 rounded-full object-cover"
+                         onerror="this.src='https://via.placeholder.com/40/cccccc/666666?text=${
+                           adData.pageName?.charAt(0) || "A"
+                         }'" />
+                    <div>
+                        <div class="font-semibold text-[15px] text-[#050505]">${
+                          adData.pageName || "Advertiser"
+                        }</div>
+                        <div class="text-[13px] text-[#65676b] flex items-center gap-1">
+                            ${
+                              showSponsoredLabel
+                                ? "<strong>Sponsored</strong> · "
+                                : ""
+                            }
+                            <span>${adData.timestamp || "1h"}</span>
+                        </div>
+                    </div>
+                </div>
+                ${
+                  showAdControls
+                    ? `
+                <button class="text-[#65676b] hover:bg-gray-100 rounded-full p-2 transition-colors">
+                    <svg fill="currentColor" viewBox="0 0 20 20" width="20" height="20">
+                        <g fill-rule="evenodd" transform="translate(-446 -350)">
+                            <path d="M458 360a2 2 0 1 1-4 0 2 2 0 0 1 4 0m6 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0m-12 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0"></path>
+                        </g>
+                    </svg>
+                </button>`
+                    : ""
+                }
+            </div>
+
+            ${
+              bodyText
+                ? `
+            <div class="px-3 pb-3">
+                <div class="text-[15px] text-[#050505] leading-5">
+                    <span class="ad-text-content">${this.escapeHtml(
+                      truncatedText
+                    )}</span>
+                    ${
+                      needsTruncation
+                        ? `
+                        <button class="see-more-btn text-[#65676b] hover:underline font-semibold ml-1">See more</button>
+                    `
+                        : ""
+                    }
+                </div>
+            </div>`
+                : ""
+            }
+
+            ${hasMedia ? this.renderMedia(adData) : ""}
+            ${
+              adData.linkUrl || adData.captionText
+                ? this.renderLinkPreview(adData)
+                : ""
+            }
+
+            <div class="px-3 py-2 border-t border-gray-200 flex items-center justify-between text-[#65676b] text-[13px]">
+                <div class="flex items-center gap-1">
+                    <div class="flex -space-x-1">
+                        <span class="inline-flex items-center justify-center w-[18px] h-[18px] rounded-full bg-[#1877f2]">
+                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 0a8 8 0 00-8 8c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8zm3.9 6.2l-4.3 4.3c-.1.1-.2.1-.3.1s-.2 0-.3-.1L4.1 7.6c-.2-.2-.2-.5 0-.7s.5-.2.7 0L7 9.1l4-4c.2-.2.5-.2.7 0s.2.5.2.7-.1.2-.1.4z"/>
+                            </svg>
+                        </span>
+                        <span class="inline-flex items-center justify-center w-[18px] h-[18px] rounded-full bg-[#f02849]">
+                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 1a7 7 0 00-7 7c0 3.9 3.1 7 7 7s7-3.1 7-7-3.1-7-7-7zm3.7 10.3c-.4.4-1.1.4-1.5 0L8 9.1l-2.2 2.2c-.4.4-1.1.4-1.5 0s-.4-1.1 0-1.5L6.5 8 4.3 5.8c-.4-.4-.4-1.1 0-1.5s1.1-.4 1.5 0L8 6.5l2.2-2.2c.4-.4 1.1-.4 1.5 0s.4 1.1 0 1.5L9.5 8l2.2 2.2c.4.4.4 1.1 0 1.5z"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <span class="ml-1">${this.randomEngagement(10, 500)}</span>
+                </div>
+                <div class="flex gap-3">
+                    <span>${this.randomEngagement(5, 100)} comments</span>
+                    <span>${this.randomEngagement(2, 50)} shares</span>
+                </div>
+            </div>
+        `;
+
+          if (needsTruncation) {
+            const seeMoreBtn = adElement.querySelector(".see-more-btn");
+            const textContent = adElement.querySelector(".ad-text-content");
+            if (seeMoreBtn && textContent) {
+              let isExpanded = false;
+              seeMoreBtn.addEventListener("click", () => {
+                isExpanded = !isExpanded;
+                textContent.textContent = isExpanded ? bodyText : truncatedText;
+                seeMoreBtn.textContent = isExpanded ? "See less" : "See more";
+              });
+            }
+          }
+
+          return adElement;
+        }
+
+        renderMedia(adData) {
+          if (adData.videoUrl) {
+            return `<div class="relative bg-black overflow-hidden">
+                <video class="w-full h-full object-cover" style="height: 300px; background-repeat: no-repeat;" controls 
+                       poster="${adData.imageUrl || ""}" src="${
+              adData.videoUrl
+            }"></video>
+            </div>`;
+          }
+          //   else if (adData.imageUrl) {
+          //     return `<div class="relative overflow-hidden">
+          //         <img src="${adData.imageUrl}" alt="Ad content"
+          //              class="w-full h-full object-cover cursor-pointer" style="height: 300px; background-repeat: no-repeat;"
+          //              onerror="this.style.display='none'" />
+          //     </div>`;
+          //   }
+          return "";
+        }
+
+        renderLinkPreview(adData) {
+          const urlDisplay =
+            adData.captionText || this.extractDomain(adData.linkUrl);
+          const hasLinkPreviewImage =
+            adData.linkUrl && adData.imageUrl && !adData.videoUrl;
+
+          return `
+            <a href="${
+              adData.linkUrl || "#"
+            }" target="_blank" rel="nofollow noreferrer"
+               class="block hover:bg-gray-50 transition-colors">
+                ${
+                  hasLinkPreviewImage
+                    ? `
+                <div class="relative bg-gray-100">
+                    <img src="${adData.imageUrl}" alt="Link preview"
+                         class="w-full object-cover" style="max-height: 400px;"
+                         onerror="this.parentElement.style.display='none'" />
+                </div>`
+                    : ""
+                }
+                
+                <div class="p-3 border-t border-gray-200 bg-gray-50">
+                    ${
+                      urlDisplay
+                        ? `
+                    <div class="text-[12px] text-[#65676b] uppercase mb-1 font-medium">${urlDisplay}</div>
+                    `
+                        : ""
+                    }
+                    
+                    ${
+                      adData.descriptionText
+                        ? `
+                    <div class="text-[14px] text-[#050505] line-clamp-2 mb-2">${this.escapeHtml(
+                      adData.descriptionText
+                    )}</div>
+                    `
+                        : ""
+                    }
+                    
+                    ${
+                      adData.ctaButtonText
+                        ? `
+                    <div class="mt-2">
+                        <div class="inline-block bg-gray-200 hover:bg-gray-300 text-[#050505] px-6 py-2.5 rounded-md text-[15px] font-semibold transition-colors">
+                            ${adData.ctaButtonText}
+                        </div>
+                    </div>`
+                        : ""
+                    }
+                </div>
+            </a>`;
+        }
+
+        extractDomain(url) {
+          if (!url) return "";
+          try {
+            return new URL(url).hostname.replace("www.", "").toUpperCase();
+          } catch {
+            return "";
+          }
+        }
+
+        escapeHtml(text) {
+          const div = document.createElement("div");
+          div.textContent = text;
+          return div.innerHTML;
+        }
+
+        getPlaceholderImage(size = 40) {
+          return `https://via.placeholder.com/${size}/cccccc/666666?text=Ad`;
+        }
+
+        randomEngagement(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+      }
+
+      // Main Script
+      let currentAds = [];
+      const renderer = new FacebookAdRenderer("#feed-container");
+
+      // Event Listeners
+      document
+        .getElementById("load-ads-btn")
+        .addEventListener("click", loadAds);
+      document
+        .getElementById("fake-ads-toggle")
+        .addEventListener("change", filterAndDisplayAds);
+
+      document
+        .getElementById("dark-mode-toggle")
+        .addEventListener("change", function () {
+          document.body.classList.toggle("dark-mode");
+          localStorage.setItem("dark-mode", this.checked);
+        });
+
+      // Load dark mode preference
+      if (localStorage.getItem("dark-mode") === "true") {
+        document.getElementById("dark-mode-toggle").checked = true;
+        document.body.classList.add("dark-mode");
+      }
+
+      // Load ads from file
+      async function loadAds() {
+        try {
+          const ads = await renderer.loadAdsFromFile();
+          if (!ads || ads.length === 0) {
+            showNotification("No ads found in ads_data.json!", "error");
+            return;
+          }
+          currentAds = Array.isArray(ads) ? ads : ads.ads || [];
+          filterAndDisplayAds();
+          showNotification(
+            `Loaded ${currentAds.length} ads successfully!`,
+            "success"
+          );
+        } catch (error) {
+          console.error("Error loading ads:", error);
+          showNotification(
+            "Could not load ads_data.json. Make sure file exists!",
+            "error"
+          );
+        }
+      }
+
+      // Filter and display ads based on toggle
+      function filterAndDisplayAds() {
+        const showFake = document.getElementById("fake-ads-toggle").checked;
+        const filteredAds = currentAds.filter((ad) =>
+          showFake ? ad.isFakeAd === true : ad.isFakeAd !== true
+        );
+
+        renderer.clearFeed();
+
+        if (filteredAds.length === 0) {
+          const emptyMsg = document.createElement("div");
+          emptyMsg.className =
+            "bg-white rounded-lg card-shadow p-8 text-center";
+          emptyMsg.innerHTML = `
+            <p class="text-gray-500 text-lg mb-2">No ${
+              showFake ? "fake" : "real"
+            } ads to display</p>
+            <p class="text-gray-400 text-sm">Toggle the switch to see ${
+              showFake ? "real" : "fake"
+            } ads</p>
+        `;
+          renderer.container.appendChild(emptyMsg);
+          return;
+        }
+
+        filteredAds.forEach((ad) => {
+          const adElement = renderer.renderAd(ad, {
+            showSponsoredLabel: true,
+            showAdControls: true,
+          });
+
+          if (ad.isFakeAd) {
+            const badge = document.createElement("div");
+            badge.className = "fake-ad-badge";
+            badge.textContent = "🎭 Fake Ad";
+            badge.style.cssText =
+              "position: absolute; top: 8px; right: 8px; z-index: 10;";
+            const adHeader = adElement.querySelector(".ad-header");
+            if (adHeader) {
+              adHeader.style.position = "relative";
+              adHeader.appendChild(badge);
+            }
+          }
+
+          renderer.container.appendChild(adElement);
+        });
+      }
+
+      // Show notification messages
+      function showNotification(message, type = "info") {
+        const notification = document.createElement("div");
+        notification.className = `fixed top-20 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 ${
+          type === "success"
+            ? "bg-green-500"
+            : type === "error"
+            ? "bg-red-500"
+            : "bg-blue-500"
+        }`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.style.opacity = "0";
+          notification.style.transition = "opacity 0.3s";
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      }
+
+      // Load sample ads on page load
+      window.addEventListener("load", function () {
+        renderer.clearFeed();
+        const sampleAds = generateSampleAds();
+        sampleAds.forEach((ad) => {
+          const adElement = renderer.renderAd(ad);
+          renderer.container.appendChild(adElement);
+        });
+      });
+
+      // Generate sample ads for demo
+      // function generateSampleAds() {
+      //     return [
+      //         {
+      //             pageName: 'TechGear Pro',
+      //             profilePictureUrl: 'https://via.placeholder.com/40/1877f2/ffffff?text=TG',
+      //             bodyText: 'Introducing our latest wireless headphones with active noise cancellation. Experience crystal-clear audio and 30-hour battery life. Perfect for work, travel, and entertainment.',
+      //             imageUrl: 'https://via.placeholder.com/500/1877f2/ffffff?text=Wireless+Headphones',
+      //             linkUrl: 'https://example.com/headphones',
+      //             captionText: 'TECHGEAR.COM',
+      //             descriptionText: 'Premium Wireless Headphones - Limited Time Offer',
+      //             ctaButtonText: 'Shop Now',
+      //             timestamp: '2h',
+      //             isFakeAd: false
+      //         },
+      //         {
+      //             pageName: 'FitLife Gym',
+      //             profilePictureUrl: 'https://via.placeholder.com/40/45bd62/ffffff?text=FL',
+      //             bodyText: 'Transform your body in 90 days with our scientifically-designed fitness program. Join thousands of satisfied members who have achieved their goals.',
+      //             imageUrl: 'https://via.placeholder.com/500/45bd62/ffffff?text=Fitness+Program',
+      //             linkUrl: 'https://example.com/fitness',
+      //             captionText: 'FITLIFE.COM',
+      //             descriptionText: 'Get Fit Fast - 90 Day Challenge',
+      //             ctaButtonText: 'Join Now',
+      //             timestamp: '4h',
+      //             isFakeAd: true
+      //         },
+      //         {
+      //             pageName: 'CloudSync Solutions',
+      //             profilePictureUrl: 'https://via.placeholder.com/40/ff6b6b/ffffff?text=CS',
+      //             bodyText: 'Secure cloud storage for your business. Collaborate seamlessly with your team from anywhere. Enterprise-grade security with 99.9% uptime guarantee.',
+      //             imageUrl: 'https://via.placeholder.com/500/ff6b6b/ffffff?text=Cloud+Storage',
+      //             linkUrl: 'https://example.com/cloud',
+      //             captionText: 'CLOUDSYNC.IO',
+      //             descriptionText: 'Enterprise Cloud Storage Solution',
+      //             ctaButtonText: 'Start Free Trial',
+      //             timestamp: '6h',
+      //             isFakeAd: false
+      //         },
+      //         {
+      //             pageName: 'StyleHub Fashion',
+      //             profilePictureUrl: 'https://via.placeholder.com/40/ee5a6f/ffffff?text=SH',
+      //             bodyText: 'Summer collection is here! Discover the latest trends in fashion with up to 50% off on selected items. Limited stock available.',
+      //             imageUrl: 'https://via.placeholder.com/500/ee5a6f/ffffff?text=Summer+Fashion',
+      //             linkUrl: 'https://example.com/fashion',
+      //             captionText: 'STYLEHUB.COM',
+      //             descriptionText: 'Summer Sale - Up to 50% Off',
+      //             ctaButtonText: 'Shop Collection',
+      //             timestamp: '8h',
+      //             isFakeAd: true
+      //         }
+      //     ];
+      // }
+    </script>
+  </body>
+</html>
